@@ -11,7 +11,11 @@
     "test": "vitest run --coverage",
     "format": "prettier --write .",
     "format:check": "prettier --check .",
-    "check": "pnpm format:check && pnpm build && pnpm test"
+    "boundaries": "node scripts/boundaries.mjs",
+    "validate:package": "node scripts/validate-package.mjs",
+    "benchmark": "node --expose-gc benchmarks/run.mjs",
+    "bundle": "node scripts/bundle.mjs",
+    "check": "pnpm format:check && pnpm build && pnpm test && pnpm boundaries && pnpm validate:package && pnpm bundle"
   },
   "devDependencies": {
     "typescript": "6.0.3",
