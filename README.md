@@ -34,9 +34,11 @@ The [executable example](examples/core.ts) is compiled against the actual packed
 
 Portable zero-dependency core with typed configuration, Unicode NFKC tokenization, inverted-index exact OR retrieval, positive field boosts, stable weighted ranking, atomic validated add/upsert, remove/clear and index statistics. IDs are nonempty strings or finite numbers; numeric and string IDs are distinct. Duplicate add IDs reject the entire batch. Upserts retain insertion-order tie priority. Results contain frozen shallow document copies; nested data remains caller-owned.
 
-Angular integration, fuzzy matching, refinements, suggestions, workers, adapters, DevTools, themes and website are not implemented yet. There is no deployed docs/playground URL. The rebuild follows the linked Notion milestones; historical completion claims do not apply.
+Angular integration, workers, HTTP adapters, DevTools, themes and website are not implemented yet. There is no deployed docs/playground URL. The rebuild follows the linked Notion milestones; historical completion claims do not apply.
 
 ## Validation and measurements
+
+Optional autocomplete, async suggestion groups and cancellable state are available from `@searchivo/core/suggestions`, `/source` and `/state`. `createSearchState(localSource(engine))` exposes query, results, loading, error, total, facets and duration, with abort and generation guards. Debounce uses an injected scheduler; see [ownership and lifecycle](docs/adr/0006-state.md).
 
 `@searchivo/core/refinements` provides `refine(hits, options)` for typed equality, membership and numeric ranges, conjunctive pre-pagination facets, stable sorting and offset/limit pages. See [refinement semantics](docs/adr/0005-refinements.md).
 

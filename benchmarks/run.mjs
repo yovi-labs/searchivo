@@ -2,6 +2,7 @@ import { createSearchEngine } from "../packages/core/dist/index.js";
 import { bm25 } from "../packages/core/dist/bm25.js";
 import { createFuzzySearch } from "../packages/core/dist/fuzzy.js";
 import { refine } from "../packages/core/dist/refinements.js";
+import { createAutocomplete } from "../packages/core/dist/suggestions.js";
 import { performance } from "node:perf_hooks";
 import { execFileSync } from "node:child_process";
 import { cpus, platform, release } from "node:os";
@@ -62,6 +63,16 @@ for (const size of [1000, 10000, 100000])
     const t = performance.now();
     engine.upsert([{ id: 0, name: "product changed" }]);
     const incremental = performance.now() - t;
+    const suggest = createAutocomplete(engine);
+    const suggestStart = performance.now();
+    suggest("cat");
+    const suggestionColdMs = performance.now() - suggestStart;
+    for (let i = 0; i < report.warmups; i++) suggest("cat");
+    const suggestionWarmMs = Array.from({ length: report.samples }, () => {
+      const t = performance.now();
+      suggest("cat");
+      return performance.now() - t;
+    });
     const fuzzy = createFuzzySearch(engine);
     global.gc();
     const fuzzyBefore = process.memoryUsage().heapUsed;
@@ -92,6 +103,8 @@ for (const size of [1000, 10000, 100000])
       initializationMs: initialized - start,
       indexingMs: indexed - initialized,
       incrementalMs: incremental,
+      suggestionColdMs,
+      suggestionWarmMs,
       queryMs: queries,
       refinementMs,
       bm25QueryMs: bm25Queries,

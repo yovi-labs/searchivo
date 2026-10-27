@@ -10,6 +10,18 @@
     "README.md"
   ],
   "exports": {
+    "./source": {
+      "types": "./dist/source.d.ts",
+      "import": "./dist/source.js"
+    },
+    "./state": {
+      "types": "./dist/state.d.ts",
+      "import": "./dist/state.js"
+    },
+    "./suggestions": {
+      "types": "./dist/suggestions.d.ts",
+      "import": "./dist/suggestions.js"
+    },
     "./refinements": {
       "types": "./dist/refinements.d.ts",
       "import": "./dist/refinements.js"

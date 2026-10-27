@@ -3,6 +3,9 @@ import { bm25 } from "@searchivo/core/bm25";
 import { createFuzzySearch } from "@searchivo/core/fuzzy";
 import { highlight } from "@searchivo/core/highlight";
 import { refine } from "@searchivo/core/refinements";
+import { createAutocomplete } from "@searchivo/core/suggestions";
+import { localSource } from "@searchivo/core/source";
+import { createSearchState } from "@searchivo/core/state";
 type Product = { id: number; name: string; description: string };
 const search = createSearchEngine<Product>({
   id: "id",
@@ -12,6 +15,12 @@ search.add([
   { id: 1, name: "Apple iPhone 15 Pro", description: "Premium smartphone" },
 ]);
 const results = search.search("iphone");
+if (createAutocomplete(search)("iph")[0] !== "iphone")
+  throw new Error("Suggestions example failed");
+const state = createSearchState(localSource(search));
+await state.search({ query: "iphone" });
+if (state.get().total !== 1) throw new Error("State example failed");
+state.dispose();
 if (
   refine(results, {
     filters: [{ field: "id", op: "range", min: 1 }],
