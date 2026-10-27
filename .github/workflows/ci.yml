@@ -1,0 +1,16 @@
+name: Quality
+on: [push, pull_request]
+permissions:
+  contents: read
+jobs:
+  verify:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version: 24.22.1
+      - run: npm install --global pnpm@11.28.9
+      - run: pnpm install --frozen-lockfile
+      - run: pnpm check
+      - run: pnpm audit --audit-level=low
