@@ -14,8 +14,12 @@ const result = await build({
   metafile: true,
 });
 const bytes = result.outputFiles[0].contents;
-if (Object.keys(result.metafile.inputs).some((path) => path.includes("bm25")))
-  throw new Error("Basic consumer must not bundle BM25");
+if (
+  Object.keys(result.metafile.inputs).some((path) =>
+    /bm25|fuzzy|highlight/.test(path),
+  )
+)
+  throw new Error("Basic consumer must not bundle optional features");
 const report = {
   raw: bytes.length,
   gzip: gzipSync(bytes).length,

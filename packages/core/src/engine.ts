@@ -39,6 +39,7 @@ export function createSearchEngine<T>(
   const index = new Map<string, Map<DocumentId, number[]>>();
   let order = 0;
   let postingCount = 0;
+  let version = 0;
 
   function prepare(
     batch: readonly T[],
@@ -91,6 +92,7 @@ export function createSearchEngine<T>(
       if (postings.size === 0) index.delete(term);
     }
     documents.delete(id);
+    version++;
     existing.lengths.forEach((length, i) => {
       totalLengths[i] = totalLengths[i]! - length;
     });
@@ -103,6 +105,7 @@ export function createSearchEngine<T>(
       entry.order = documents.get(id)?.order ?? order++;
       remove(id);
       documents.set(id, entry);
+      version++;
       entry.lengths.forEach((length, i) => {
         totalLengths[i] = totalLengths[i]! + length;
       });
@@ -119,6 +122,12 @@ export function createSearchEngine<T>(
   }
 
   const engine: SearchEngine<T> = {
+    version() {
+      return version;
+    },
+    vocabulary() {
+      return index.keys();
+    },
     add(batch) {
       mutate(batch, false);
     },
@@ -131,6 +140,7 @@ export function createSearchEngine<T>(
       index.clear();
       postingCount = 0;
       order = 0;
+      version++;
       totalLengths.fill(0);
     },
     stats() {

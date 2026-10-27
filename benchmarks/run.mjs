@@ -1,4 +1,6 @@
 import { createSearchEngine } from "../packages/core/dist/index.js";
+import { bm25 } from "../packages/core/dist/bm25.js";
+import { createFuzzySearch } from "../packages/core/dist/fuzzy.js";
 import { performance } from "node:perf_hooks";
 import { execFileSync } from "node:child_process";
 import { cpus, platform, release } from "node:os";
@@ -46,6 +48,30 @@ for (const size of [1000, 10000, 100000])
     const t = performance.now();
     engine.upsert([{ id: 0, name: "product changed" }]);
     const incremental = performance.now() - t;
+    const fuzzy = createFuzzySearch(engine);
+    global.gc();
+    const fuzzyBefore = process.memoryUsage().heapUsed;
+    const coldStart = performance.now();
+    fuzzy("cateogry17");
+    const fuzzyCold = performance.now() - coldStart;
+    global.gc();
+    const fuzzyRetained = process.memoryUsage().heapUsed - fuzzyBefore;
+    for (let i = 0; i < report.warmups; i++) fuzzy("cateogry17");
+    const fuzzyWarm = Array.from({ length: report.samples }, () => {
+      const t = performance.now();
+      fuzzy("cateogry17");
+      return performance.now() - t;
+    });
+    const ranked = createSearchEngine(
+      { id: "id", fields: { name: {} }, ranking: bm25() },
+      docs,
+    );
+    for (let i = 0; i < report.warmups; i++) ranked.search(query);
+    const bm25Queries = Array.from({ length: report.samples }, () => {
+      const t = performance.now();
+      ranked.search(query);
+      return performance.now() - t;
+    });
     report.workloads.push({
       size,
       cardinality,
@@ -53,6 +79,10 @@ for (const size of [1000, 10000, 100000])
       indexingMs: indexed - initialized,
       incrementalMs: incremental,
       queryMs: queries,
+      bm25QueryMs: bm25Queries,
+      fuzzyColdMs: fuzzyCold,
+      fuzzyWarmMs: fuzzyWarm,
+      fuzzyRetainedHeapBytes: fuzzyRetained,
       retainedHeapBytes: retained,
       postIndexHeapDeltaBytes: transient,
       memoryCaveat:

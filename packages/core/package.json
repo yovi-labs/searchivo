@@ -10,6 +10,14 @@
     "README.md"
   ],
   "exports": {
+    "./fuzzy": {
+      "types": "./dist/fuzzy.d.ts",
+      "import": "./dist/fuzzy.js"
+    },
+    "./highlight": {
+      "types": "./dist/highlight.d.ts",
+      "import": "./dist/highlight.js"
+    },
     "./bm25": {
       "types": "./dist/bm25.d.ts",
       "import": "./dist/bm25.js"

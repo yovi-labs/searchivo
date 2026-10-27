@@ -38,6 +38,8 @@ Angular integration, fuzzy matching, refinements, suggestions, workers, adapters
 
 ## Validation and measurements
 
+Optional `@searchivo/core/fuzzy` exports `createFuzzySearch(engine)` for bounded one-edit corrections, and `@searchivo/core/highlight` exports `highlight(text, query)` for original UTF-16 ranges. See [limits and Unicode semantics](docs/adr/0004-fuzzy-highlights.md). These modules are absent from the basic consumer bundle.
+
 Optional [BM25](docs/adr/0003-ranking.md) is available from `@searchivo/core/bm25`: pass `ranking: bm25({ k1: 1.2, b: 0.75 })` at construction. Custom pure per-field scoring functions receive corpus statistics. The base entry point does not import BM25. Invalid or overflowing scores fail explicitly.
 
 `pnpm check` checks formatting, strict types, per-file 100% library coverage, dependency boundaries, packed ESM/declaration/doc consumers and a 5KB gzip core budget. `pnpm audit --audit-level=low` checks dependencies. Current tests run on Node 24.22.1; no broader runtime or Angular compatibility is claimed.

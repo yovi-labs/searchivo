@@ -41,6 +41,10 @@ export interface IndexStats {
 }
 /** Synchronous local index. Batches are validated completely before mutation. */
 export interface SearchEngine<T> {
+  /** Monotonic mutation revision for optional derived indexes. */
+  version(): number;
+  /** Iterate normalized dictionary terms; do not mutate the engine during iteration. */
+  vocabulary(): Iterable<string>;
   /** Add documents; duplicate IDs within the batch or index reject the whole batch. */
   add(documents: readonly T[]): void;
   /** Insert or replace documents; duplicate batch IDs reject. Replacements retain tie order. */
