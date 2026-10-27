@@ -1,6 +1,7 @@
 import { createSearchEngine } from "../packages/core/dist/index.js";
 import { bm25 } from "../packages/core/dist/bm25.js";
 import { createFuzzySearch } from "../packages/core/dist/fuzzy.js";
+import { refine } from "../packages/core/dist/refinements.js";
 import { performance } from "node:perf_hooks";
 import { execFileSync } from "node:child_process";
 import { cpus, platform, release } from "node:os";
@@ -45,6 +46,19 @@ for (const size of [1000, 10000, 100000])
       engine.search(query);
       return performance.now() - t;
     });
+    const allHits = engine.search("product");
+    const refinementOptions = {
+      filters: [{ field: "id", op: "range", min: size / 2 }],
+      facets: ["name"],
+      sort: { field: "id", direction: "desc" },
+      limit: 20,
+    };
+    for (let i = 0; i < report.warmups; i++) refine(allHits, refinementOptions);
+    const refinementMs = Array.from({ length: report.samples }, () => {
+      const t = performance.now();
+      refine(allHits, refinementOptions);
+      return performance.now() - t;
+    });
     const t = performance.now();
     engine.upsert([{ id: 0, name: "product changed" }]);
     const incremental = performance.now() - t;
@@ -79,6 +93,7 @@ for (const size of [1000, 10000, 100000])
       indexingMs: indexed - initialized,
       incrementalMs: incremental,
       queryMs: queries,
+      refinementMs,
       bm25QueryMs: bm25Queries,
       fuzzyColdMs: fuzzyCold,
       fuzzyWarmMs: fuzzyWarm,

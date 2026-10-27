@@ -38,6 +38,8 @@ Angular integration, fuzzy matching, refinements, suggestions, workers, adapters
 
 ## Validation and measurements
 
+`@searchivo/core/refinements` provides `refine(hits, options)` for typed equality, membership and numeric ranges, conjunctive pre-pagination facets, stable sorting and offset/limit pages. See [refinement semantics](docs/adr/0005-refinements.md).
+
 Optional `@searchivo/core/fuzzy` exports `createFuzzySearch(engine)` for bounded one-edit corrections, and `@searchivo/core/highlight` exports `highlight(text, query)` for original UTF-16 ranges. See [limits and Unicode semantics](docs/adr/0004-fuzzy-highlights.md). These modules are absent from the basic consumer bundle.
 
 Optional [BM25](docs/adr/0003-ranking.md) is available from `@searchivo/core/bm25`: pass `ranking: bm25({ k1: 1.2, b: 0.75 })` at construction. Custom pure per-field scoring functions receive corpus statistics. The base entry point does not import BM25. Invalid or overflowing scores fail explicitly.

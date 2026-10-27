@@ -2,6 +2,7 @@ import { createSearchEngine } from "@searchivo/core";
 import { bm25 } from "@searchivo/core/bm25";
 import { createFuzzySearch } from "@searchivo/core/fuzzy";
 import { highlight } from "@searchivo/core/highlight";
+import { refine } from "@searchivo/core/refinements";
 type Product = { id: number; name: string; description: string };
 const search = createSearchEngine<Product>({
   id: "id",
@@ -11,6 +12,20 @@ search.add([
   { id: 1, name: "Apple iPhone 15 Pro", description: "Premium smartphone" },
 ]);
 const results = search.search("iphone");
+if (
+  refine(results, {
+    filters: [{ field: "id", op: "range", min: 1 }],
+    facets: ["name"],
+    limit: 1,
+  }).total !== 1
+)
+  throw new Error("Refinements example failed");
+export function verifyTypes() {
+  // @ts-expect-error String fields cannot use numeric range filters.
+  refine(results, { filters: [{ field: "name", op: "range", min: 0 }] });
+  // @ts-expect-error Equality values must match their field type.
+  refine(results, { filters: [{ field: "id", op: "eq", value: "wrong" }] });
+}
 if (createFuzzySearch(search)("iphnoe").results[0]?.id !== 1)
   throw new Error("Fuzzy example failed");
 if (highlight("😀 iPhone", "iphone")[0]?.start !== 3)
