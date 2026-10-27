@@ -38,6 +38,8 @@ Angular integration, fuzzy matching, refinements, suggestions, workers, adapters
 
 ## Validation and measurements
 
+Optional [BM25](docs/adr/0003-ranking.md) is available from `@searchivo/core/bm25`: pass `ranking: bm25({ k1: 1.2, b: 0.75 })` at construction. Custom pure per-field scoring functions receive corpus statistics. The base entry point does not import BM25. Invalid or overflowing scores fail explicitly.
+
 `pnpm check` checks formatting, strict types, per-file 100% library coverage, dependency boundaries, packed ESM/declaration/doc consumers and a 5KB gzip core budget. `pnpm audit --audit-level=low` checks dependencies. Current tests run on Node 24.22.1; no broader runtime or Angular compatibility is claimed.
 
 See [benchmark methodology](benchmarks/README.md), [raw reports](benchmarks/reports), and [index semantics/complexity](docs/adr/0002-index.md). Seeded 1k/10k/100k workloads distinguish repeated vocabulary from high-cardinality dictionaries. Post-index heap samples are not peak-memory measurements. No performance regression baseline has yet been established.

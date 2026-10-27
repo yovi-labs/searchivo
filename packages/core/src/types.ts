@@ -13,7 +13,20 @@ export interface FieldOptions {
 export interface SearchConfig<T> {
   readonly id: KeysOfType<T, DocumentId>;
   readonly fields: Partial<Record<KeysOfType<T, string>, FieldOptions>>;
+  /** Optional per-term, per-field scorer; return a finite nonnegative score. */
+  readonly ranking?: RankingStrategy;
 }
+/** Statistics for one matched term in one field. No explanation metadata is allocated. */
+export interface RankingContext {
+  readonly frequency: number;
+  readonly documentFrequency: number;
+  readonly documentCount: number;
+  readonly fieldLength: number;
+  readonly averageFieldLength: number;
+  readonly boost: number;
+}
+/** Pure per-field scoring function. Called only for positive term frequencies. */
+export type RankingStrategy = (context: RankingContext) => number;
 /** A ranked hit; document is a frozen shallow snapshot. Nested values remain caller-owned. */
 export interface SearchResult<T> {
   readonly id: DocumentId;

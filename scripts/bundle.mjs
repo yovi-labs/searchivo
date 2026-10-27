@@ -14,6 +14,8 @@ const result = await build({
   metafile: true,
 });
 const bytes = result.outputFiles[0].contents;
+if (Object.keys(result.metafile.inputs).some((path) => path.includes("bm25")))
+  throw new Error("Basic consumer must not bundle BM25");
 const report = {
   raw: bytes.length,
   gzip: gzipSync(bytes).length,

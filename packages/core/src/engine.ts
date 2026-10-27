@@ -34,6 +34,8 @@ export function createSearchEngine<T>(
     return boost;
   });
   const documents = new Map<DocumentId, Entry<T>>();
+  const ranking = config.ranking;
+  const totalLengths = fields.map(() => 0);
   const index = new Map<string, Map<DocumentId, number[]>>();
   let order = 0;
   let postingCount = 0;
@@ -89,6 +91,9 @@ export function createSearchEngine<T>(
       if (postings.size === 0) index.delete(term);
     }
     documents.delete(id);
+    existing.lengths.forEach((length, i) => {
+      totalLengths[i] = totalLengths[i]! - length;
+    });
     return true;
   }
 
@@ -98,6 +103,9 @@ export function createSearchEngine<T>(
       entry.order = documents.get(id)?.order ?? order++;
       remove(id);
       documents.set(id, entry);
+      entry.lengths.forEach((length, i) => {
+        totalLengths[i] = totalLengths[i]! + length;
+      });
       for (const [term, frequencies] of entry.terms) {
         let postings = index.get(term);
         if (!postings) {
@@ -123,6 +131,7 @@ export function createSearchEngine<T>(
       index.clear();
       postingCount = 0;
       order = 0;
+      totalLengths.fill(0);
     },
     stats() {
       return {
@@ -137,11 +146,29 @@ export function createSearchEngine<T>(
         const postings = index.get(term);
         if (!postings) continue;
         for (const [id, frequencies] of postings) {
-          const score = frequencies.reduce(
-            (total, frequency, i) => total + frequency * boosts[i]!,
-            0,
-          );
-          scores.set(id, (scores.get(id) ?? 0) + score);
+          let score = scores.get(id) ?? 0;
+          for (let i = 0; i < frequencies.length; i++) {
+            const frequency = frequencies[i]!;
+            if (frequency === 0) continue;
+            const contribution = ranking
+              ? ranking({
+                  frequency,
+                  documentFrequency: postings.size,
+                  documentCount: documents.size,
+                  fieldLength: documents.get(id)!.lengths[i]!,
+                  averageFieldLength: totalLengths[i]! / documents.size,
+                  boost: boosts[i]!,
+                })
+              : frequency * boosts[i]!;
+            if (!Number.isFinite(contribution) || contribution < 0)
+              throw new Error("ranking must return a finite nonnegative score");
+            score += contribution;
+          }
+          if (!Number.isFinite(score))
+            throw new Error(
+              "ranking total overflowed; reduce boosts or scoring magnitude",
+            );
+          scores.set(id, score);
         }
       }
       const results: SearchResult<T>[] = [];

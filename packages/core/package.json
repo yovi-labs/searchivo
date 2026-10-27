@@ -10,6 +10,10 @@
     "README.md"
   ],
   "exports": {
+    "./bm25": {
+      "types": "./dist/bm25.d.ts",
+      "import": "./dist/bm25.js"
+    },
     ".": {
       "types": "./dist/index.d.ts",
       "import": "./dist/index.js"
