@@ -34,7 +34,11 @@ The [executable example](examples/core.ts) is compiled against the actual packed
 
 Portable zero-dependency core with typed configuration, Unicode NFKC tokenization, inverted-index exact OR retrieval, positive field boosts, stable weighted ranking, atomic validated add/upsert, remove/clear and index statistics. IDs are nonempty strings or finite numbers; numeric and string IDs are distinct. Duplicate add IDs reject the entire batch. Upserts retain insertion-order tie priority. Results contain frozen shallow document copies; nested data remains caller-owned.
 
-Angular integration, workers, HTTP adapters, DevTools, themes and website are not implemented yet. There is no deployed docs/playground URL. The rebuild follows the linked Notion milestones; historical completion claims do not apply.
+Workers, HTTP adapters, DevTools, themes and website are not implemented yet. There is no deployed docs/playground URL. The rebuild follows the linked Notion milestones; historical completion claims do not apply.
+
+## Angular
+
+`@searchivo/angular` provides `createSearchivo(source)` with typed scoped providers and Signals, plus standalone `SearchivoInputDirective` for `<input searchivo>`. Add `binding.provide()` to component providers, the directive to imports, and retrieve the handle with `binding.inject()`. Developers own the label and markup. IME composition is preserved and scope destruction cancels pending work. See the [Angular guide](packages/angular/README.md) and [runnable OnPush/zoneless example](apps/angular-example/src/main.ts). Build it with `pnpm build:example` and run `node scripts/serve.mjs` for a local preview on port 4173.
 
 ## Validation and measurements
 
@@ -46,7 +50,7 @@ Optional `@searchivo/core/fuzzy` exports `createFuzzySearch(engine)` for bounded
 
 Optional [BM25](docs/adr/0003-ranking.md) is available from `@searchivo/core/bm25`: pass `ranking: bm25({ k1: 1.2, b: 0.75 })` at construction. Custom pure per-field scoring functions receive corpus statistics. The base entry point does not import BM25. Invalid or overflowing scores fail explicitly.
 
-`pnpm check` checks formatting, strict types, per-file 100% library coverage, dependency boundaries, packed ESM/declaration/doc consumers and a 5KB gzip core budget. `pnpm audit --audit-level=low` checks dependencies. Current tests run on Node 24.22.1; no broader runtime or Angular compatibility is claimed.
+`pnpm check` checks formatting/lint, strict types, per-file 100% library coverage, dependency boundaries, packed ESM/declaration/doc consumers, Angular APF/strict-AOT consumers and a 5KB gzip core budget. `pnpm audit --audit-level=low` checks dependencies. Current tests exercise Node 24.22.1, TypeScript 6.0.3 and Angular 22.2.3 only. `pnpm build:example && pnpm test:browser` runs Chromium behavior and axe accessibility checks; these do not prove universal accessibility or field Core Web Vitals.
 
 See [benchmark methodology](benchmarks/README.md), [raw reports](benchmarks/reports), and [index semantics/complexity](docs/adr/0002-index.md). Seeded 1k/10k/100k workloads distinguish repeated vocabulary from high-cardinality dictionaries. Post-index heap samples are not peak-memory measurements. No performance regression baseline has yet been established.
 

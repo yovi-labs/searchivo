@@ -1,0 +1,16 @@
+{
+  "name": "@searchivo/angular",
+  "version": "0.1.0-rebuild.0",
+  "private": true,
+  "type": "module",
+  "sideEffects": false,
+  "typings": "./dist/types/searchivo-angular.d.ts",
+  "module": "./dist/fesm2022/searchivo-angular.mjs",
+  "peerDependencies": {
+    "@angular/core": "22.2.3",
+    "@searchivo/core": "0.1.0-rebuild.0"
+  },
+  "devDependencies": {
+    "@searchivo/core": "workspace:*"
+  }
+}

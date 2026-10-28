@@ -1,0 +1,29 @@
+{
+  "$schema": "./node_modules/@angular/cli/lib/config/schema.json",
+  "version": 1,
+  "cli": { "analytics": false },
+  "projects": {
+    "example": {
+      "projectType": "application",
+      "root": "apps/angular-example",
+      "sourceRoot": "apps/angular-example/src",
+      "architect": {
+        "build": {
+          "builder": "@angular/build:application",
+          "options": {
+            "browser": "apps/angular-example/src/main.ts",
+            "index": "apps/angular-example/src/index.html",
+            "tsConfig": "apps/angular-example/tsconfig.json",
+            "outputPath": "dist/angular-example",
+            "optimization": true,
+            "outputHashing": "all"
+          }
+        },
+        "serve": {
+          "builder": "@angular/build:dev-server",
+          "options": { "buildTarget": "example:build" }
+        }
+      }
+    }
+  }
+}

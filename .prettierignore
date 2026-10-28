@@ -2,3 +2,6 @@ pnpm-lock.yaml
 dist
 coverage
 artifacts
+.angular
+playwright-report
+test-results

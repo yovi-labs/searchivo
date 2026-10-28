@@ -31,3 +31,24 @@ if (report.gzip > 5000)
 mkdirSync("artifacts", { recursive: true });
 writeFileSync("artifacts/bundle.json", JSON.stringify(report, null, 2));
 console.log(report);
+const angular = await build({
+  entryPoints: ["packages/angular/dist/fesm2022/searchivo-angular.mjs"],
+  external: ["@angular/*", "@searchivo/*"],
+  bundle: true,
+  format: "esm",
+  minify: true,
+  write: false,
+});
+const angularBytes = angular.outputFiles[0].contents;
+const angularReport = {
+  raw: angularBytes.length,
+  gzip: gzipSync(angularBytes).length,
+  brotli: brotliCompressSync(angularBytes).length,
+  scope:
+    "Angular integration only; Angular framework and Searchivo core external",
+};
+writeFileSync(
+  "artifacts/angular-bundle.json",
+  JSON.stringify(angularReport, null, 2),
+);
+console.log(angularReport);

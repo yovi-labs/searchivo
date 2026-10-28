@@ -1,5 +1,26 @@
 import { defineConfig } from "vitest/config";
+import { transform } from "esbuild";
 export default defineConfig({
+  plugins: [
+    {
+      name: "angular-legacy-decorators",
+      enforce: "pre",
+      async transform(code, id) {
+        if (
+          !id.replaceAll("\\", "/").includes("/packages/angular/") ||
+          !id.endsWith(".ts")
+        )
+          return undefined;
+        return transform(code, {
+          loader: "ts",
+          target: "es2022",
+          sourcefile: id,
+          sourcemap: true,
+          tsconfigRaw: { compilerOptions: { experimentalDecorators: true } },
+        });
+      },
+    },
+  ],
   test: {
     include: ["packages/*/test/**/*.test.ts"],
     coverage: {

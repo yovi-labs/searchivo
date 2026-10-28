@@ -80,3 +80,84 @@ copyFileSync(join(temp, pack.filename), join(root, "artifacts", pack.filename));
 console.log(
   `Packed exports, allowlist, declarations and executable docs passed: ${pack.filename}`,
 );
+const angularPack = JSON.parse(
+  run(
+    npm,
+    ["pack", "--json", "--pack-destination", temp],
+    resolve("packages/angular/dist"),
+  ).toString(),
+)[0];
+for (const file of angularPack.files)
+  if (
+    !/^(package.json|README.md|fesm2022\/.+\.mjs(\.map)?|types\/.+\.d.ts)$/.test(
+      file.path,
+    )
+  )
+    throw new Error(`Unexpected Angular packed file: ${file.path}`);
+run(
+  npm,
+  [
+    "install",
+    "--ignore-scripts",
+    "--no-audit",
+    "--no-fund",
+    join(temp, angularPack.filename),
+    "@angular/common@22.2.3",
+    "@angular/platform-browser@22.2.3",
+  ],
+  temp,
+);
+copyFileSync(
+  resolve("apps/angular-example/src/main.ts"),
+  join(temp, "angular.ts"),
+);
+writeFileSync(
+  join(temp, "tsconfig.angular.json"),
+  JSON.stringify({
+    compilerOptions: {
+      strict: true,
+      noUncheckedIndexedAccess: true,
+      exactOptionalPropertyTypes: true,
+      target: "ES2022",
+      module: "ES2022",
+      moduleResolution: "bundler",
+      experimentalDecorators: true,
+      types: [],
+      lib: ["ES2022", "DOM"],
+      outDir: "angular-dist",
+    },
+    angularCompilerOptions: {
+      strictTemplates: true,
+      strictInjectionParameters: true,
+    },
+    files: ["angular.ts"],
+  }),
+);
+run(
+  process.execPath,
+  [
+    resolve("node_modules/@angular/compiler-cli/bundles/src/bin/ngc.js"),
+    "-p",
+    join(temp, "tsconfig.angular.json"),
+  ],
+  temp,
+);
+const angularManifest = JSON.parse(
+  readFileSync(
+    join(temp, "node_modules/@searchivo/angular/package.json"),
+    "utf8",
+  ),
+);
+if (
+  !angularManifest.private ||
+  !angularManifest.exports["."].types ||
+  !angularManifest.exports["."].default
+)
+  throw new Error("Invalid private Angular package format");
+copyFileSync(
+  join(temp, angularPack.filename),
+  join(root, "artifacts", angularPack.filename),
+);
+console.log(
+  `Packed Angular APF and strict AOT template consumer passed: ${angularPack.filename}`,
+);
