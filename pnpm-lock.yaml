@@ -96,6 +96,12 @@ importers:
         specifier: 7.8.2
         version: 7.8.2
 
+  packages/adapters:
+    devDependencies:
+      '@searchivo/core':
+        specifier: workspace:*
+        version: link:../core
+
   packages/angular:
     dependencies:
       '@angular/core':

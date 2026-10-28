@@ -229,3 +229,43 @@ copyFileSync(
 console.log(
   `Packed worker entry points and typed protocol consumer passed: ${workerPack.filename}`,
 );
+const adapterPack = JSON.parse(
+  run(
+    npm,
+    ["pack", "--json", "--pack-destination", temp],
+    resolve("packages/adapters"),
+  ).toString(),
+)[0];
+for (const file of adapterPack.files)
+  if (!allowed.test(file.path))
+    throw new Error(`Unexpected adapter packed file: ${file.path}`);
+run(
+  npm,
+  [
+    "install",
+    "--ignore-scripts",
+    "--no-audit",
+    "--no-fund",
+    join(temp, adapterPack.filename),
+  ],
+  temp,
+);
+writeFileSync(
+  join(temp, "http.mjs"),
+  `import { createServer } from 'node:http';
+import { createHttpSource } from '@searchivo/adapters';
+import { createCancellation } from '@searchivo/core/source';
+const server = createServer(async (request, response) => { let body = ''; for await (const part of request) body += part; const data = JSON.parse(body); response.setHeader('content-type', 'application/json'); response.end(JSON.stringify({ results: [{id:1,score:1,document:{id:1,name:data.query}}], total:1,facets:{} })); });
+await new Promise(resolve => server.listen(0, '127.0.0.1', resolve));
+try { const source = createHttpSource({ endpoint: 'http://127.0.0.1:' + server.address().port, isDocument: value => typeof value === 'object' && value !== null && typeof value.id === 'number' && typeof value.name === 'string' });
+const result = await source({query:'phone'}, createCancellation().signal); if (result.results[0].document.name !== 'phone') throw new Error('HTTP round trip failed'); }
+finally { await new Promise((resolve,reject) => server.close(error => error ? reject(error) : resolve())); }`,
+);
+run(process.execPath, ["http.mjs"], temp);
+copyFileSync(
+  join(temp, adapterPack.filename),
+  join(root, "artifacts", adapterPack.filename),
+);
+console.log(
+  `Packed HTTP adapter passed real local HTTP round trip: ${adapterPack.filename}`,
+);
