@@ -6,8 +6,10 @@ export interface FuzzyOptions {
   readonly maxCandidates?: number;
   /** Maximum accepted corrections per token; default 16. */
   readonly maxExpansions?: number;
+  /** Maximum trie nodes visited per query token; default 4096. */
+  readonly maxVisitedNodes?: number;
 }
-/** A query expansion with deterministic dictionary-insertion-order corrections. */
+/** A query expansion with deterministic trie-traversal corrections. */
 export interface FuzzyResponse<T> {
   readonly results: readonly SearchResult<T>[];
   readonly terms: readonly string[];
@@ -15,17 +17,9 @@ export interface FuzzyResponse<T> {
   readonly truncated: boolean;
 }
 
-function keys(term: string): Set<string> {
-  const chars = [...term];
-  return new Set([
-    term,
-    ...chars.map((_, i) =>
-      chars
-        .slice(0, i)
-        .concat(chars.slice(i + 1))
-        .join(""),
-    ),
-  ]);
+interface Trie {
+  children: Map<string, Trie>;
+  term?: string;
 }
 
 /** Whether two terms have Optimal String Alignment distance at most one. */
@@ -49,31 +43,41 @@ export function withinOneEdit(left: string, right: string): boolean {
     : a.slice(i).join("") === b.slice(i + 1).join("");
 }
 
-/** Create a lazy deletion-key index. One edit; terms >64 code points use exact matching only. */
+/** Create a lazy bounded trie index. One edit; terms >64 code points use exact matching only. */
 export function createFuzzySearch<T>(
   engine: SearchEngine<T>,
-  { maxCandidates = 128, maxExpansions = 16 }: FuzzyOptions = {},
+  {
+    maxCandidates = 128,
+    maxExpansions = 16,
+    maxVisitedNodes = 4096,
+  }: FuzzyOptions = {},
 ): (query: string) => FuzzyResponse<T> {
-  for (const [name, value] of Object.entries({ maxCandidates, maxExpansions }))
+  for (const [name, value] of Object.entries({
+    maxCandidates,
+    maxExpansions,
+    maxVisitedNodes,
+  }))
     if (!Number.isSafeInteger(value) || value < 1 || value > 4096)
       throw new Error(`${name} must be an integer in [1, 4096]`);
   let revision = -1;
-  const buckets = new Map<string, Set<string>>();
+  const root: Trie = { children: new Map() };
   return (query) => {
     if (query.length > 4096)
       throw new Error("fuzzy query must not exceed 4096 UTF-16 code units");
     if (revision !== engine.version()) {
-      buckets.clear();
+      root.children.clear();
       for (const term of engine.vocabulary()) {
         if ([...term].length > 64) continue;
-        for (const key of keys(term)) {
-          let bucket = buckets.get(key);
-          if (!bucket) {
-            bucket = new Set();
-            buckets.set(key, bucket);
+        let node = root;
+        for (const char of term) {
+          let child = node.children.get(char);
+          if (!child) {
+            child = { children: new Map() };
+            node.children.set(char, child);
           }
-          bucket.add(term);
+          node = child;
         }
+        node.term = term;
       }
       revision = engine.version();
     }
@@ -81,27 +85,62 @@ export function createFuzzySearch<T>(
     let truncated = false;
     for (const token of [...terms]) {
       if ([...token].length > 64) continue;
-      const candidates = new Set<string>();
-      let expansions = 0;
-      outer: for (const key of keys(token)) {
-        const bucket = buckets.get(key);
-        if (!bucket) continue;
-        for (const term of bucket) {
-          if (term === token || candidates.has(term)) continue;
-          if (
-            candidates.size === maxCandidates ||
-            expansions === maxExpansions
-          ) {
-            truncated = true;
-            break outer;
-          }
-          candidates.add(term);
-          if (withinOneEdit(token, term)) {
-            terms.add(term);
-            expansions++;
-          }
+      const chars = [...token];
+      let candidates = 0,
+        expansions = 0,
+        visited = 0,
+        stopped = false;
+      function visit(
+        node: Trie,
+        char: string,
+        previous: readonly number[],
+        beforePrevious: readonly number[] | undefined,
+        previousChar: string,
+      ): void {
+        if (stopped) return;
+        if (visited === maxVisitedNodes) {
+          truncated = true;
+          stopped = true;
+          return;
         }
+        visited++;
+        const row = [previous[0]! + 1];
+        for (let j = 1; j <= chars.length; j++) {
+          let cost = Math.min(
+            row[j - 1]! + 1,
+            previous[j]! + 1,
+            previous[j - 1]! + (char === chars[j - 1] ? 0 : 1),
+          );
+          if (
+            beforePrevious &&
+            j > 1 &&
+            char === chars[j - 2] &&
+            previousChar === chars[j - 1]
+          )
+            cost = Math.min(cost, beforePrevious[j - 2]! + 1);
+          row.push(cost);
+        }
+        if (
+          node.term !== undefined &&
+          node.term !== token &&
+          row[chars.length]! <= 1
+        ) {
+          if (candidates === maxCandidates || expansions === maxExpansions) {
+            truncated = true;
+            stopped = true;
+            return;
+          }
+          candidates++;
+          terms.add(node.term);
+          expansions++;
+        }
+        if (Math.min(...row) <= 1)
+          for (const [nextChar, child] of node.children)
+            visit(child, nextChar, row, previous, char);
       }
+      const first = Array.from({ length: chars.length + 1 }, (_, i) => i);
+      for (const [char, node] of root.children)
+        visit(node, char, first, undefined, "");
     }
     return {
       results: engine.search([...terms].join(" ")),

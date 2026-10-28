@@ -108,6 +108,12 @@ importers:
 
   packages/core: {}
 
+  packages/workers:
+    devDependencies:
+      '@searchivo/core':
+        specifier: workspace:*
+        version: link:../core
+
 packages:
 
   '@ampproject/remapping@2.3.0':

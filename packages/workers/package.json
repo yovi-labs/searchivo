@@ -1,0 +1,31 @@
+{
+  "name": "@searchivo/workers",
+  "version": "0.1.0-rebuild.0",
+  "private": true,
+  "type": "module",
+  "sideEffects": false,
+  "files": [
+    "dist",
+    "README.md"
+  ],
+  "peerDependencies": {
+    "@searchivo/core": "0.1.0-rebuild.0"
+  },
+  "devDependencies": {
+    "@searchivo/core": "workspace:*"
+  },
+  "exports": {
+    "./client": {
+      "types": "./dist/client.d.ts",
+      "import": "./dist/client.js"
+    },
+    "./runtime": {
+      "types": "./dist/runtime.d.ts",
+      "import": "./dist/runtime.js"
+    },
+    "./web": {
+      "types": "./dist/web.d.ts",
+      "import": "./dist/web.js"
+    }
+  }
+}

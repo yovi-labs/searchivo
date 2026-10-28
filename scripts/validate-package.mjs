@@ -161,3 +161,71 @@ copyFileSync(
 console.log(
   `Packed Angular APF and strict AOT template consumer passed: ${angularPack.filename}`,
 );
+const workerPack = JSON.parse(
+  run(
+    npm,
+    ["pack", "--json", "--pack-destination", temp],
+    resolve("packages/workers"),
+  ).toString(),
+)[0];
+for (const file of workerPack.files)
+  if (!allowed.test(file.path))
+    throw new Error(`Unexpected worker packed file: ${file.path}`);
+run(
+  npm,
+  [
+    "install",
+    "--ignore-scripts",
+    "--no-audit",
+    "--no-fund",
+    join(temp, workerPack.filename),
+  ],
+  temp,
+);
+writeFileSync(
+  join(temp, "workers.mjs"),
+  `import { createWorkerClient } from '@searchivo/workers/client';
+import { attachWorkerRuntime } from '@searchivo/workers/runtime';
+import { webTransport } from '@searchivo/workers/web';
+if ([createWorkerClient, attachWorkerRuntime, webTransport].some(value => typeof value !== 'function')) throw new Error('Invalid worker exports');`,
+);
+run(process.execPath, ["workers.mjs"], temp);
+writeFileSync(
+  join(temp, "workers.ts"),
+  `import { createWorkerClient, type Transport } from '@searchivo/workers/client';
+export function check(transport: Transport) { const client = createWorkerClient(transport, (value: unknown): value is {id: number} => typeof value === 'object' && value !== null && 'id' in value);
+// @ts-expect-error Search operation requires a string query.
+client.request('search', 42);
+return client.request('search', 'phone'); }`,
+);
+const workerConfig = {
+  compilerOptions: {
+    strict: true,
+    target: "ES2022",
+    module: "NodeNext",
+    lib: ["ES2022", "DOM"],
+    types: [],
+    outDir: "worker-dist",
+  },
+  files: ["workers.ts"],
+};
+writeFileSync(
+  join(temp, "tsconfig.workers.json"),
+  JSON.stringify(workerConfig),
+);
+run(
+  process.execPath,
+  [
+    resolve("node_modules/typescript/bin/tsc"),
+    "-p",
+    join(temp, "tsconfig.workers.json"),
+  ],
+  temp,
+);
+copyFileSync(
+  join(temp, workerPack.filename),
+  join(root, "artifacts", workerPack.filename),
+);
+console.log(
+  `Packed worker entry points and typed protocol consumer passed: ${workerPack.filename}`,
+);

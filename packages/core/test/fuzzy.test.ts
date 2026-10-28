@@ -131,3 +131,38 @@ test("highlight preserves original UTF-16 ranges and returns no HTML", () => {
     { start: 5, end: 7 },
   ]);
 });
+test("trie pruning preserves all one-edit matches and enforces traversal bounds", () => {
+  const words = [
+    "a",
+    "b",
+    "aa",
+    "ab",
+    "ba",
+    "bb",
+    "aaa",
+    "aab",
+    "aba",
+    "abb",
+    "baa",
+    "bab",
+    "bba",
+    "bbb",
+  ];
+  const engine = createSearchEngine(
+    { id: "id", fields: { text: {} } },
+    words.map((text, id) => ({ id, text })),
+  );
+  const fuzzy = createFuzzySearch(engine, { maxExpansions: 100 });
+  for (const query of words)
+    expect(
+      fuzzy(query)
+        .results.map((hit) => hit.document.text)
+        .sort(),
+    ).toEqual(words.filter((word) => withinOneEdit(query, word)).sort());
+  expect(
+    createFuzzySearch(engine, { maxVisitedNodes: 1 })("aaa").truncated,
+  ).toBe(true);
+  expect(() => createFuzzySearch(engine, { maxVisitedNodes: 0 })).toThrow(
+    "maxVisitedNodes",
+  );
+});
