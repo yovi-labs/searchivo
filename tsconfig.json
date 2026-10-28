@@ -3,6 +3,7 @@
   "references": [
     { "path": "packages/core" },
     { "path": "packages/workers" },
-    { "path": "packages/adapters" }
+    { "path": "packages/adapters" },
+    { "path": "packages/devtools" }
   ]
 }

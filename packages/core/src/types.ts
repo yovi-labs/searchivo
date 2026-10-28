@@ -27,6 +27,15 @@ export interface RankingContext {
 }
 /** Pure per-field scoring function. Called only for positive term frequencies. */
 export type RankingStrategy = (context: RankingContext) => number;
+/** One matched term/field contribution, allocated only when a score observer is supplied. */
+export interface ScoreContribution {
+  readonly id: DocumentId;
+  readonly field: string;
+  readonly term: string;
+  readonly boost: number;
+  readonly frequency: number;
+  readonly score: number;
+}
 /** A ranked hit; document is a frozen shallow snapshot. Nested values remain caller-owned. */
 export interface SearchResult<T> {
   readonly id: DocumentId;
@@ -54,7 +63,10 @@ export interface SearchEngine<T> {
   /** Clear all index data and reset insertion order. */
   clear(): void;
   /** Exact OR query. Repeated query terms count once; ties follow insertion order. */
-  search(query: string): readonly SearchResult<T>[];
+  search(
+    query: string,
+    observe?: (contribution: ScoreContribution) => void,
+  ): readonly SearchResult<T>[];
   /** Return current document, dictionary and term/document posting counts. */
   stats(): IndexStats;
 }

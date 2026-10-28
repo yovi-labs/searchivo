@@ -16,7 +16,9 @@ const result = await build({
 const bytes = result.outputFiles[0].contents;
 if (
   Object.keys(result.metafile.inputs).some((path) =>
-    /bm25|fuzzy|highlight|refinements|source|state|suggestions/.test(path),
+    /bm25|fuzzy|highlight|refinements|source|state|suggestions|explain|devtools/.test(
+      path,
+    ),
   )
 )
   throw new Error("Basic consumer must not bundle optional features");

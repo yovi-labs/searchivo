@@ -114,6 +114,12 @@ importers:
 
   packages/core: {}
 
+  packages/devtools:
+    devDependencies:
+      '@searchivo/core':
+        specifier: workspace:*
+        version: link:../core
+
   packages/workers:
     devDependencies:
       '@searchivo/core':

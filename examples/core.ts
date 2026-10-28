@@ -6,6 +6,7 @@ import { refine } from "@searchivo/core/refinements";
 import { createAutocomplete } from "@searchivo/core/suggestions";
 import { localSource } from "@searchivo/core/source";
 import { createSearchState } from "@searchivo/core/state";
+import { explainSearch } from "@searchivo/core/explain";
 type Product = { id: number; name: string; description: string };
 const search = createSearchEngine<Product>({
   id: "id",
@@ -15,6 +16,8 @@ search.add([
   { id: 1, name: "Apple iPhone 15 Pro", description: "Premium smartphone" },
 ]);
 const results = search.search("iphone");
+if (explainSearch(search, "iphone").contributions[0]?.score !== 3)
+  throw new Error("Explain example failed");
 if (createAutocomplete(search)("iph")[0] !== "iphone")
   throw new Error("Suggestions example failed");
 const state = createSearchState(localSource(search));

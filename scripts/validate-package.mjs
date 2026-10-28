@@ -269,3 +269,35 @@ copyFileSync(
 console.log(
   `Packed HTTP adapter passed real local HTTP round trip: ${adapterPack.filename}`,
 );
+const devtoolsPack = JSON.parse(
+  run(
+    npm,
+    ["pack", "--json", "--pack-destination", temp],
+    resolve("packages/devtools"),
+  ).toString(),
+)[0];
+for (const file of devtoolsPack.files)
+  if (!allowed.test(file.path))
+    throw new Error(`Unexpected DevTools packed file: ${file.path}`);
+run(
+  npm,
+  [
+    "install",
+    "--ignore-scripts",
+    "--no-audit",
+    "--no-fund",
+    join(temp, devtoolsPack.filename),
+  ],
+  temp,
+);
+writeFileSync(
+  join(temp, "devtools.mjs"),
+  `import { recordSearch } from '@searchivo/devtools'; import { createSearchState } from '@searchivo/core/state';
+const controller = createSearchState(() => ({results:[],total:0,facets:{}})); const recorder = recordSearch(controller); await controller.search({query:'test'}); if (recorder.entries().at(-1).query !== 'test') throw new Error('Recorder failed'); recorder.dispose(); controller.dispose();`,
+);
+run(process.execPath, ["devtools.mjs"], temp);
+copyFileSync(
+  join(temp, devtoolsPack.filename),
+  join(root, "artifacts", devtoolsPack.filename),
+);
+console.log(`Packed DevTools consumer passed: ${devtoolsPack.filename}`);

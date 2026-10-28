@@ -1,0 +1,23 @@
+{
+  "name": "@searchivo/devtools",
+  "version": "0.1.0-rebuild.0",
+  "private": true,
+  "type": "module",
+  "sideEffects": false,
+  "files": [
+    "dist",
+    "README.md"
+  ],
+  "peerDependencies": {
+    "@searchivo/core": "0.1.0-rebuild.0"
+  },
+  "devDependencies": {
+    "@searchivo/core": "workspace:*"
+  },
+  "exports": {
+    ".": {
+      "types": "./dist/index.d.ts",
+      "import": "./dist/index.js"
+    }
+  }
+}

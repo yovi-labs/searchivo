@@ -10,6 +10,10 @@
     "README.md"
   ],
   "exports": {
+    "./explain": {
+      "types": "./dist/explain.d.ts",
+      "import": "./dist/explain.js"
+    },
     "./source": {
       "types": "./dist/source.d.ts",
       "import": "./dist/source.js"

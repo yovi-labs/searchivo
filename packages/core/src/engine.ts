@@ -150,7 +150,7 @@ export function createSearchEngine<T>(
         postings: postingCount,
       };
     },
-    search(query) {
+    search(query, observe) {
       const scores = new Map<DocumentId, number>();
       for (const term of new Set(tokenize(query))) {
         const postings = index.get(term);
@@ -173,6 +173,14 @@ export function createSearchEngine<T>(
             if (!Number.isFinite(contribution) || contribution < 0)
               throw new Error("ranking must return a finite nonnegative score");
             score += contribution;
+            observe?.({
+              id,
+              field: fields[i]![0],
+              term,
+              boost: boosts[i]!,
+              frequency,
+              score: contribution,
+            });
           }
           if (!Number.isFinite(score))
             throw new Error(

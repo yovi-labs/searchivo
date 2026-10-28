@@ -34,7 +34,9 @@ The [executable example](examples/core.ts) is compiled against the actual packed
 
 Portable zero-dependency core with typed configuration, Unicode NFKC tokenization, inverted-index exact OR retrieval, positive field boosts, stable weighted ranking, atomic validated add/upsert, remove/clear and index statistics. IDs are nonempty strings or finite numbers; numeric and string IDs are distinct. Duplicate add IDs reject the entire batch. Upserts retain insertion-order tie priority. Results contain frozen shallow document copies; nested data remains caller-owned.
 
-DevTools, themes and website are not implemented yet. There is no deployed docs/playground URL. The rebuild follows the linked Notion milestones; historical completion claims do not apply.
+Themes and website are not implemented yet. There is no deployed docs/playground URL. The rebuild follows the linked Notion milestones; historical completion claims do not apply.
+
+Opt-in `@searchivo/core/explain` records actual score contributions and measured instrumentation timings. [`@searchivo/devtools`](packages/devtools/README.md) provides a bounded, disposable headless recorder. Ordinary search creates no explanation records.
 
 [`@searchivo/adapters`](packages/adapters/README.md) provides a validated POST-JSON HTTP source with runtime document guards, facet allowlists, cancellation and timeout cleanup. It shares the local source contract and works with the same state/Angular integration.
 
