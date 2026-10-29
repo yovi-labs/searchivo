@@ -1,0 +1,65 @@
+{
+  "scope": "Independent entry bundles including their imported code; not additive application costs",
+  "entries": {
+    "core/bm25": {
+      "raw": 408,
+      "gzip": 285,
+      "brotli": 240
+    },
+    "core/fuzzy": {
+      "raw": 1813,
+      "gzip": 951,
+      "brotli": 851
+    },
+    "core/highlight": {
+      "raw": 602,
+      "gzip": 360,
+      "brotli": 316
+    },
+    "core/refinements": {
+      "raw": 1040,
+      "gzip": 593,
+      "brotli": 510
+    },
+    "core/suggestions": {
+      "raw": 781,
+      "gzip": 490,
+      "brotli": 413
+    },
+    "core/state": {
+      "raw": 1272,
+      "gzip": 627,
+      "brotli": 545
+    },
+    "core/explain": {
+      "raw": 435,
+      "gzip": 309,
+      "brotli": 270
+    },
+    "workers/client": {
+      "raw": 1626,
+      "gzip": 774,
+      "brotli": 672
+    },
+    "workers/runtime": {
+      "raw": 1895,
+      "gzip": 890,
+      "brotli": 780
+    },
+    "workers/web": {
+      "raw": 425,
+      "gzip": 219,
+      "brotli": 172
+    },
+    "adapters/index": {
+      "raw": 2274,
+      "gzip": 1065,
+      "brotli": 910
+    },
+    "devtools/index": {
+      "raw": 377,
+      "gzip": 290,
+      "brotli": 230
+    }
+  }
+}
