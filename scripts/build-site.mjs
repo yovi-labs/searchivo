@@ -1,3 +1,4 @@
+import { playgroundPage } from "./site-playground.mjs";
 import { build } from "esbuild";
 import { marked } from "marked";
 import {
@@ -44,55 +45,7 @@ search.add(products);
 const results = search.search('phone');
 
 <span class="code-note">// Your documents. Deterministic results.</span></code></pre></div></div></section><section class="section"><div class="section-heading"><h2>Small core. Room to grow.</h2><span class="minor">IMPORT ONLY WHAT YOU NEED</span></div><div class="features"><div class="feature"><span class="number">01 / THE ENGINE</span><h3>Make relevance yours.</h3><p>Inverted indexing, field boosts, optional BM25 and bounded fuzzy matching. Understand every score.</p></div><div class="feature"><span class="number">02 / THE INTEGRATIONS</span><h3>Bring your own interface.</h3><p>Angular Signals and native inputs. Optional workers and HTTP sources. Your markup stays yours.</p></div><div class="feature"><span class="number">03 / THE EVIDENCE</span><h3>Measure what matters.</h3><p>Behavioral tests, packed consumers and reproducible benchmark samples. Clear scope, honest limitations.</p></div></div></section>`;
-const control = (id, label, html) =>
-  `<div class="control"><label for="${id}">${label}</label>${html}</div>`;
-const select = (id, options) =>
-  `<select id="${id}">${options.map(([value, label]) => `<option value="${value}">${label}</option>`).join("")}</select>`;
-const number = (id, value, min, max, step = 1) =>
-  `<input id="${id}" type="number" required value="${value}" min="${min}" max="${max}" step="${step}">`;
-const check = (id, label, checked = false) =>
-  `<label class="inline-label"><input id="${id}" type="checkbox" ${checked ? "checked" : ""}>${label}</label>`;
-const playground = `${pageTitle("A working laboratory", "Tune. Search. Understand.", "Explore actual Searchivo packages with 12 labeled product fixtures. This demo is not a performance benchmark.")}<div id="playground" class="play-layout"><aside id="controls" class="controls" aria-label="Search controls"><h2>Configure search</h2>${control(
-  "execution",
-  "Execution",
-  select("execution", [
-    ["local", "Local engine"],
-    ["worker", "Web Worker"],
-  ]),
-)}${control(
-  "ranking",
-  "Ranking",
-  select("ranking", [
-    ["default", "Weighted frequency"],
-    ["bm25", "BM25"],
-  ]),
-)}${control("boost", "Name field boost", number("boost", 3, 0.1, 20, 0.1))}<div class="control-row">${control("k1", "BM25 k1", number("k1", 1.2, 0.1, 5, 0.1))}${control("b", "BM25 b", number("b", 0.75, 0, 1, 0.05))}</div>${check("fuzzy", "One-edit fuzzy matching")}${check("highlights", "Highlight matches", true)}${check("explain", "Explain Search")}${control(
-  "category",
-  "Category",
-  select("category", [
-    ["", "All categories"],
-    ["Phones", "Phones"],
-    ["Computers", "Computers"],
-    ["Audio", "Audio"],
-    ["Accessories", "Accessories"],
-  ]),
-)}${control("price", "Maximum price (USD)", number("price", 2000, 0, 5000, 50))}${check("stock", "In stock only")}${control(
-  "sort",
-  "Sort results",
-  select("sort", [
-    ["score", "Relevance"],
-    ["price", "Price: low to high"],
-    ["name", "Name: A–Z"],
-  ]),
-)}${control(
-  "page-size",
-  "Results per page",
-  select("page-size", [
-    ["3", "3"],
-    ["6", "6"],
-    ["12", "12"],
-  ]),
-)}${control("debounce", "Debounce (ms)", number("debounce", 100, 0, 1000, 50))}${control("minimum", "Minimum query length", number("minimum", 1, 0, 10))}</aside><section aria-label="Search results"><div class="search-area"><label for="query">Search products</label><input id="query" type="text" role="combobox" aria-autocomplete="list" aria-expanded="false" aria-controls="suggestions" autocomplete="off" value="phone"><ul id="suggestions" role="listbox" aria-label="Suggestions" hidden></ul></div><div class="metrics"><span id="search-status" role="status">Loading playground…</span><span>12 demo fixtures</span></div><p id="execution-note" class="minor"></p><p id="facets"></p><div id="results" class="cards"></div><div class="pagination"><button id="previous" type="button">← Previous</button><span id="page-status" class="minor"></span><button id="next" type="button">Next →</button></div><details><summary>Real package configuration</summary><pre id="usage-code"></pre></details><details><summary>Explain Search output</summary><pre id="explanation"></pre></details></section></div>`;
+const playground = playgroundPage(pageTitle);
 const guide = readFileSync("docs/guide.md", "utf8");
 const docsNav = [
   "Getting started",
@@ -114,13 +67,14 @@ const slug = (text) =>
     .toLowerCase()
     .replaceAll(/[^a-z0-9 ]/g, "")
     .replaceAll(" ", "-");
-let renderedGuide = marked.parse(guide);
+let renderedGuide = marked.parse(guide.replace(/^# .*\r?\n/, ""));
 for (const heading of docsNav)
   renderedGuide = renderedGuide.replace(
     `<h2>${heading}</h2>`,
     `<h2 id="${slug(heading)}">${heading}</h2>`,
   );
-const docs = `${pageTitle("Documentation", "From documents to answers.", "A practical guide to the engine, optional modules and integration boundaries.")}<div class="docs-grid"><aside class="docs-nav" aria-label="Documentation sections">${docsNav.map((title) => `<a href="#${slug(title)}">${title}</a>`).join("")}</aside><article>${renderedGuide}</article></div>`;
+const sections = renderedGuide.split(/(?=<h2 id=)/);
+const docs = `${pageTitle("Documentation / v0.1 candidate", "Build search with confidence.", "Start with a working query. Add relevance, interaction and integrations when your application needs them.")}<div class="learning-paths"><a href="#getting-started"><span>01 / START HERE</span><strong>Your first search</strong><small>Index → query → ranked results</small></a><a href="#angular"><span>02 / INTEGRATE</span><strong>Bring your interface</strong><small>Angular, workers and HTTP sources</small></a><a href="/playground/"><span>03 / EXPERIMENT</span><strong>Tune in the playground</strong><small>Explore the actual package behavior ↗</small></a></div><div class="docs-grid"><aside class="docs-sidebar" aria-label="Documentation navigation"><label for="docs-search">Find in the guide</label><input id="docs-search" type="search" placeholder="Try cancellation or fuzzy…" aria-describedby="docs-search-status"><p id="docs-search-status" class="control-help" role="status">${docsNav.length} topics</p><nav class="docs-nav" aria-label="Documentation sections">${docsNav.map((title) => `<a href="#${slug(title)}">${title}</a>`).join("")}</nav><a class="source-link" href="https://github.com/yovi-labs/searchivo/blob/develop/docs/guide.md">Edit this guide on GitHub ↗</a></aside><article class="guide-content">${sections.map((section, i) => (i === 0 ? section : `<section data-doc-section>${section}</section>`)).join("")}<p id="docs-empty" hidden>No matching topics. Try “ranking”, “worker”, or “state”.</p></article></div>`;
 const examples = `${pageTitle("Examples", "Start from something real.", "Runnable consumers, validated against the packages they demonstrate.")}<article><h2>Local TypeScript engine</h2><p>The packed-package example exercises indexing, BM25, fuzzy matching, highlights, refinements, suggestions, state and explanations.</p><a class="button" href="https://github.com/yovi-labs/searchivo/blob/develop/examples/core.ts">View TypeScript example ↗</a><h2>Standalone Angular</h2><p>Native input enhancement with scoped providers, Signals, OnPush and zoneless change detection. Labels and markup stay in the application.</p><a class="button" href="https://github.com/yovi-labs/searchivo/tree/develop/apps/angular-example">View Angular example ↗</a><h2>Worker execution</h2><p>Construct the engine inside a module Worker. Validate the protocol and document shape, acknowledge readiness and dispose owned resources.</p><a class="button" href="https://github.com/yovi-labs/searchivo/blob/develop/examples/browser-worker-client.ts">View worker client ↗</a><h2>Interactive controls</h2><p>The playground demonstrates keyboard suggestions, safe range rendering, filters and local/worker ranking. It clearly labels its small synthetic fixtures.</p><a class="button primary" href="/playground/">Open playground</a></article>`;
 const reportNames = readdirSync("benchmarks/reports")
   .filter((name) => /^20.*\.json$/.test(name))

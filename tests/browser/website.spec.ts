@@ -1,6 +1,81 @@
 import { expect, test } from "@playwright/test";
 import AxeBuilder from "@axe-core/playwright";
 test.use({ baseURL: "http://127.0.0.1:4174" });
+test("guided experiments reset controls and copy real configuration", async ({
+  page,
+  context,
+}) => {
+  await context.grantPermissions(["clipboard-read", "clipboard-write"]);
+  await page.goto("/playground/");
+  await page.getByRole("button", { name: /Recover a misspelling/ }).click();
+  await expect(page.locator("#query")).toHaveValue("iphnoe");
+  await expect(page.locator("#results")).toContainText("iPhone");
+  await expect(page.locator("#query-tokens")).toContainText("iphone");
+  await page.getByRole("button", { name: /Look inside BM25/ }).click();
+  await expect(page.locator("#ranking")).toHaveValue("bm25");
+  await expect(page.locator("#explanation")).toContainText("contributions");
+  await page.getByRole("button", { name: "Copy configuration" }).click();
+  await expect(page.locator("#copy-status")).toHaveText(
+    "Configuration copied.",
+  );
+  expect(await page.evaluate(() => navigator.clipboard.readText())).toContain(
+    "ranking: bm25",
+  );
+  await page.getByRole("button", { name: /Run ranking in a worker/ }).click();
+  await expect(page.locator("#execution-note")).toContainText("Worker ranking");
+  await expect(page.locator("#results")).toContainText("Laptop");
+  await page.getByRole("button", { name: "Reset", exact: true }).click();
+  await expect(page.locator("#query")).toHaveValue("phone");
+  await expect(page.locator("#execution")).toHaveValue("local");
+  await expect(page.locator("#ranking")).toHaveValue("default");
+  await expect(page.locator("#fuzzy")).not.toBeChecked();
+  await expect(page.locator("#explain")).not.toBeChecked();
+  await page.setViewportSize({ width: 1440, height: 1120 });
+  await page.evaluate(() => window.scrollTo(0, 0));
+  await page.screenshot({ path: "artifacts/playground-readme.png" });
+  await page.setViewportSize({ width: 390, height: 844 });
+  expect(
+    await page.evaluate(() => document.body.scrollWidth <= innerWidth),
+  ).toBe(true);
+  expect((await new AxeBuilder({ page }).analyze()).violations).toEqual([]);
+  await page.screenshot({
+    path: "artifacts/playground-mobile.png",
+    fullPage: true,
+  });
+});
+test("documentation topic search, empty state, learning paths and copy", async ({
+  page,
+  context,
+}) => {
+  await context.grantPermissions(["clipboard-read", "clipboard-write"]);
+  await page.goto("/docs/");
+  await page.setViewportSize({ width: 1440, height: 1120 });
+  await page.screenshot({ path: "artifacts/documentation-readme.png" });
+  const search = page.getByRole("searchbox", { name: "Find in the guide" });
+  await search.fill("zzz-no-such-topic");
+  await expect(page.locator("#docs-empty")).toBeVisible();
+  await expect(page.locator("[data-doc-section]:visible")).toHaveCount(0);
+  await search.fill("Abort abandons");
+  await expect(page.locator("[data-doc-section]:visible")).toHaveCount(1);
+  await expect(page.locator("[data-doc-section]:visible h2")).toHaveText(
+    "Workers",
+  );
+  await page.getByRole("link", { name: /Your first search/ }).click();
+  await expect(search).toHaveValue("");
+  await expect(page.locator("[data-doc-section]:visible")).toHaveCount(13);
+  await page
+    .getByRole("button", { name: "Copy code", exact: true })
+    .first()
+    .click();
+  expect(await page.evaluate(() => navigator.clipboard.readText())).toContain(
+    "createSearchEngine",
+  );
+  expect((await new AxeBuilder({ page }).analyze()).violations).toEqual([]);
+  await page.setViewportSize({ width: 390, height: 844 });
+  expect(
+    await page.evaluate(() => document.body.scrollWidth <= innerWidth),
+  ).toBe(true);
+});
 test("homepage real search, accessibility and responsive layout", async ({
   page,
 }) => {

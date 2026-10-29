@@ -574,3 +574,284 @@ summary {
     font-size: 50px;
   }
 }
+/* Developer workspace and documentation navigation */
+.lab-toolbar,
+.panel-heading,
+.results-heading {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 16px;
+}
+.lab-toolbar {
+  border: 1px solid #34435b;
+  background: #111b2d;
+  padding: 18px 22px;
+  border-radius: 8px;
+  margin-bottom: 18px;
+  font-size: 13px;
+}
+.lab-toolbar > div {
+  display: flex;
+  align-items: center;
+  flex-wrap: wrap;
+  gap: 14px;
+}
+.live-dot {
+  width: 7px;
+  height: 7px;
+  background: #74dfcf;
+  border-radius: 50%;
+}
+.experiments {
+  display: grid;
+  grid-template-columns: repeat(4, minmax(0, 1fr));
+  gap: 12px;
+}
+.experiments button,
+.learning-paths a {
+  display: flex;
+  flex-direction: column;
+  gap: 10px;
+  text-align: left;
+  padding: 20px;
+  background: #10192a;
+  border: 1px solid #34435b;
+  border-radius: 8px;
+  text-decoration: none;
+}
+.experiments button:hover,
+.experiments button[aria-pressed="true"],
+.learning-paths a:hover {
+  border-color: #ff88c6;
+  background: #211a31;
+}
+.experiments span,
+.learning-paths span {
+  color: #ff98ce;
+  font:
+    10px/1.5 ui-monospace,
+    monospace;
+  letter-spacing: 0.07em;
+}
+.experiments strong,
+.learning-paths strong {
+  color: #f4f6fc;
+  font-size: 14px;
+}
+.experiments small,
+.learning-paths small {
+  color: #aebed8;
+  font-size: 12px;
+  line-height: 1.6;
+}
+.experiment-note {
+  border-left: 2px solid #ff65b3;
+  padding: 8px 16px;
+  margin: 22px 0 28px;
+  color: #bdc8dd;
+  font-size: 13px;
+  min-height: 38px;
+}
+.panel-heading h2,
+.results-heading h2 {
+  margin: 0;
+  font-size: 17px;
+}
+.controls .control {
+  display: block;
+}
+.controls details {
+  padding: 16px 0 0;
+  margin-top: 14px;
+}
+.controls summary {
+  font-size: 13px;
+  font-weight: 650;
+  min-height: 28px;
+}
+.controls .panel-heading {
+  margin-bottom: 18px;
+}
+.controls .panel-heading h2 {
+  margin: 0;
+}
+.quiet-button,
+.copy-doc-code {
+  font-size: 12px;
+  padding: 8px 12px;
+  min-height: 44px;
+}
+.control-help {
+  color: #aebed8;
+  font-size: 12px;
+  line-height: 1.6;
+}
+.control select,
+.control input {
+  margin-top: 8px;
+}
+.query-panel {
+  background: #111b2d;
+  border: 1px solid #34435b;
+  padding: 22px;
+  border-radius: 8px;
+}
+.query-panel .panel-heading {
+  margin-bottom: 12px;
+}
+.query-panel label {
+  margin: 0;
+  font-size: 14px;
+  font-weight: 600;
+}
+.query-panel input {
+  font-size: 18px;
+  min-height: 56px;
+}
+.query-panel .metrics {
+  border-bottom: 1px solid #2b3850;
+  justify-content: space-between;
+}
+.query-panel .minor {
+  line-height: 1.7;
+}
+.results-heading {
+  margin-top: 26px;
+}
+.rank-label {
+  display: block;
+  color: #99dcd5;
+  font:
+    11px ui-monospace,
+    monospace;
+  margin-bottom: 14px;
+  text-transform: uppercase;
+  letter-spacing: 0.05em;
+}
+.inspector {
+  border: 1px solid #34435b;
+  border-radius: 8px;
+  padding: 22px;
+  background: #0e1727;
+  margin-top: 26px;
+}
+.inspector pre {
+  max-height: 380px;
+  overflow: auto;
+  padding: 16px;
+  background: #0b1220;
+  border-radius: 6px;
+}
+#copy-status {
+  margin-left: 12px;
+}
+.learning-paths {
+  display: grid;
+  grid-template-columns: repeat(3, minmax(0, 1fr));
+  gap: 16px;
+  margin-bottom: 48px;
+}
+.docs-grid {
+  grid-template-columns: 250px minmax(0, 1fr);
+  gap: 48px;
+  align-items: start;
+}
+.docs-sidebar {
+  position: sticky;
+  top: 24px;
+  padding: 18px;
+  border: 1px solid #34435b;
+  border-radius: 8px;
+  background: #10192a;
+  max-height: calc(100vh - 48px);
+  overflow: auto;
+}
+.docs-nav {
+  display: block;
+}
+.docs-nav a {
+  min-height: 36px;
+  padding: 7px 0;
+  font-size: 12px;
+}
+.docs-nav a[hidden],
+[data-doc-section][hidden] {
+  display: none;
+}
+.source-link {
+  display: block;
+  padding-top: 16px;
+  margin-top: 12px;
+  border-top: 1px solid #34435b;
+  color: #ff98ce;
+  font-size: 12px;
+}
+.guide-content section {
+  border-bottom: 1px solid #29364d;
+  padding: 0 0 28px;
+}
+.guide-content section h2 {
+  margin-top: 32px;
+}
+.guide-content pre {
+  margin-top: 8px;
+}
+.copy-doc-code {
+  margin-top: 12px;
+}
+@media (max-width: 1050px) {
+  .experiments {
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+  }
+}
+@media (max-width: 850px) {
+  .docs-grid {
+    grid-template-columns: 1fr;
+  }
+  .docs-sidebar {
+    position: static;
+    max-height: none;
+  }
+  .docs-nav {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 4px 16px;
+  }
+  .controls {
+    display: block;
+  }
+  .lab-toolbar,
+  .query-panel .panel-heading {
+    align-items: flex-start;
+    flex-direction: column;
+  }
+  .learning-paths {
+    grid-template-columns: 1fr;
+  }
+}
+@media (max-width: 440px) {
+  .experiments {
+    grid-template-columns: 1fr;
+  }
+  .query-panel,
+  .inspector {
+    padding: 16px;
+  }
+  .results-heading {
+    align-items: flex-start;
+    flex-direction: column;
+    gap: 8px;
+  }
+}
+.lab-results,
+.guide-content,
+.docs-sidebar {
+  min-width: 0;
+}
+@media (max-width: 850px) {
+  .play-layout,
+  .docs-grid {
+    grid-template-columns: minmax(0, 1fr);
+  }
+}

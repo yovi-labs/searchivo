@@ -4,7 +4,34 @@ Fast search. Simple API. Searchivo is a TypeScript-first local search toolkit wi
 
 ## Getting started
 
-The following example compiles against the actual package declarations. The executable consumer in examples/core.ts also checks behavior.
+### Run the workspace
+
+Use Node 24.22.1 and pnpm 11.28.9. Clone the repository's `develop` branch, then run `pnpm install --frozen-lockfile` and `pnpm build`. For the website, run `pnpm build:website` followed by `pnpm preview:website`. Open `/playground/` on the local preview to explore the same engine interactively.
+
+Packages are not on public npm. In a separate consumer, install the exact tarballs from a validated private candidate together; Angular consumers also install its tested peers. Do not substitute an unverified registry package with the same name.
+
+### Your first query
+
+Configure an ID and searchable string fields, then index documents. Results contain the original ID, a shallow frozen document snapshot, and a numeric score.
+
+```ts
+import { createSearchEngine } from "@searchivo/core";
+
+type Article = { id: number; title: string; body: string };
+const search = createSearchEngine<Article>({
+  id: "id",
+  fields: { title: { boost: 3 }, body: {} },
+});
+search.add([{ id: 1, title: "Search that fits", body: "Typed local search" }]);
+const results = search.search("typed");
+export { results };
+```
+
+This query matches the `body` field. Searching `search` matches both fields, so the title boost contributes to its score. An empty query produces no hits. Use `upsert` to replace a document; `add` rejects duplicate IDs.
+
+### Add capabilities progressively
+
+The following complete example demonstrates the optional modules together. Both examples compile and execute against actual packed declarations during validation. Start with the imports you need; the core entry point does not load these optional modules.
 
 ```ts
 import { createSearchEngine } from "@searchivo/core";

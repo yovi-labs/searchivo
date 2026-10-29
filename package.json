@@ -7,6 +7,8 @@
     "node": ">=24.15.0 <25"
   },
   "scripts": {
+    "docs:links": "node scripts/check-repo-links.mjs",
+    "preview:website": "node scripts/serve.mjs dist/website 4174",
     "build:website": "tsc -p apps/website/tsconfig.json && tsc -p apps/playground/tsconfig.worker.json && node scripts/build-site.mjs && node scripts/check-site.mjs",
     "build": "tsc -b && pnpm build:angular",
     "build:angular": "ng-packagr -p packages/angular/ng-package.json -c packages/angular/tsconfig.json",
@@ -21,7 +23,7 @@
     "validate:package": "node scripts/validate-package.mjs",
     "benchmark": "node --expose-gc benchmarks/run.mjs",
     "bundle": "node scripts/bundle.mjs",
-    "check": "pnpm format:check && pnpm lint && pnpm build && pnpm test && pnpm boundaries && pnpm validate:package && pnpm bundle"
+    "check": "pnpm format:check && pnpm lint && pnpm build && pnpm test && pnpm boundaries && pnpm validate:package && pnpm bundle && pnpm docs:links"
   },
   "devDependencies": {
     "@angular/build": "22.2.3",

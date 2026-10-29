@@ -1,0 +1,8 @@
+blank_issues_enabled: true
+contact_links:
+  - name: Documentation and troubleshooting
+    url: https://github.com/yovi-labs/searchivo/blob/develop/docs/README.md
+    about: Start with the guide and runnable examples.
+  - name: Security reporting guidance
+    url: https://github.com/yovi-labs/searchivo/blob/develop/SECURITY.md
+    about: Do not disclose vulnerabilities in public issues.

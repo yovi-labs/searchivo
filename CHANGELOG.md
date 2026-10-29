@@ -1,5 +1,14 @@
 # Changelog
 
+## Unreleased
+
+- Guided playground experiments, reset, grouped controls, copyable configuration and a query/dataset inspector.
+- Searchable documentation topics, learning paths and copyable examples.
+- README previews and local onboarding, documentation/playground entry points, contributor and security guidance, issue forms and pull-request template.
+- Repository Markdown-link validation and browser checks for the new developer flows.
+
+Existing private candidate artifacts remain tied to their original revision. No package version or publication state changes in this documentation/UI increment.
+
 ## 0.1.0-rebuild.0 — private candidate
 
 New implementation; no historical source or verification results were recovered.

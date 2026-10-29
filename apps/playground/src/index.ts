@@ -24,6 +24,20 @@ export function mountPlayground(documents: readonly Product[]): () => void {
     suggestions = element<HTMLUListElement>("suggestions");
   const value = (id: string) => element<HTMLInputElement>(id).value;
   const checked = (id: string) => element<HTMLInputElement>(id).checked;
+  const defaults = new Map(
+    [
+      ...document.querySelectorAll<HTMLInputElement | HTMLSelectElement>(
+        "#controls input, #controls select",
+      ),
+    ].map((control) => [
+      control.id,
+      {
+        value: control.value,
+        checked: control instanceof HTMLInputElement && control.checked,
+      },
+    ]),
+  );
+  element("dataset-preview").textContent = JSON.stringify(documents, null, 2);
   let offset = 0,
     activeSuggestion = -1,
     composing = false,
@@ -226,18 +240,26 @@ export function mountPlayground(documents: readonly Product[]): () => void {
     );
     const expanded = state.metadata?.expanded as readonly string[] | undefined;
     const highlightQuery = expanded?.join(" ") ?? state.query;
+    element("query-tokens").textContent =
+      `Query tokens: ${tokenize(state.query).join(" · ") || "none"} → Expanded terms: ${expanded?.join(" · ") || "none"}`;
+    const stats = engine.stats();
+    element("index-stats").textContent =
+      `${stats.documents} documents / ${stats.terms} terms`;
     list.replaceChildren(
-      ...state.results.map((hit) => {
+      ...state.results.map((hit, index) => {
         const card = document.createElement("article"),
           title = document.createElement("h2"),
           description = document.createElement("p"),
           meta = document.createElement("div");
         card.className = "result-card";
         meta.className = "result-meta";
+        const rank = document.createElement("span");
+        rank.className = "rank-label";
+        rank.textContent = `#${offset + index + 1} · ${hit.document.category}`;
         renderText(title, hit.document.name, highlightQuery);
         renderText(description, hit.document.description, highlightQuery);
         meta.textContent = `${hit.document.category} · $${hit.document.price} · ${hit.document.stock ? "In stock" : "Unavailable"} · score ${hit.score.toFixed(4)}`;
-        card.append(title, description, meta);
+        card.append(rank, title, description, meta);
         return card;
       }),
     );
@@ -292,6 +314,74 @@ export function mountPlayground(documents: readonly Product[]): () => void {
   };
   const controls = element("controls");
   controls.addEventListener("change", rebuild);
+  function reset(): void {
+    for (const [id, initial] of defaults) {
+      const control = element<HTMLInputElement | HTMLSelectElement>(id);
+      control.value = initial.value;
+      if (control instanceof HTMLInputElement)
+        control.checked = initial.checked;
+    }
+    input.value = "phone";
+    document
+      .querySelectorAll<HTMLButtonElement>("[data-preset]")
+      .forEach((button) => button.setAttribute("aria-pressed", "false"));
+    element("experiment-note").textContent =
+      "Default configuration restored. Search for phone, apple, or laptop.";
+  }
+  const onReset = () => {
+    reset();
+    rebuild();
+  };
+  const presetButtons = [
+    ...document.querySelectorAll<HTMLButtonElement>("[data-preset]"),
+  ];
+  const onPreset = (event: Event) => {
+    const button = event.currentTarget as HTMLButtonElement;
+    reset();
+    button.setAttribute("aria-pressed", "true");
+    switch (button.dataset["preset"]) {
+      case "fuzzy":
+        input.value = "iphnoe";
+        element<HTMLInputElement>("fuzzy").checked = true;
+        element("experiment-note").textContent =
+          "Typo recovery: “iphnoe” expands to “iphone”. Turn fuzzy matching off to compare.";
+        break;
+      case "rank":
+        input.value = "apple";
+        element<HTMLSelectElement>("ranking").value = "bm25";
+        element<HTMLInputElement>("explain").checked = true;
+        element("experiment-note").textContent =
+          "BM25: compare Apple results, then open Explain Search output to inspect each field contribution.";
+        break;
+      case "worker":
+        input.value = "laptop";
+        element<HTMLSelectElement>("execution").value = "worker";
+        element("experiment-note").textContent =
+          "Worker ranking: the query runs through a module Worker. Fuzzy expansion, refinements and explanations stay local.";
+        break;
+      default:
+        element("experiment-note").textContent =
+          "Exact relevance: name matches receive a 3× field boost. Change the boost and compare scores.";
+    }
+    rebuild();
+  };
+  const onCopy = async () => {
+    try {
+      await navigator.clipboard.writeText(
+        element("usage-code").textContent ?? "",
+      );
+      element("copy-status").textContent = "Configuration copied.";
+    } catch {
+      element("copy-status").textContent =
+        "Clipboard unavailable. Select and copy the code below.";
+    }
+  };
+  presetButtons.forEach((button) => {
+    button.setAttribute("aria-pressed", "false");
+    button.addEventListener("click", onPreset);
+  });
+  element("reset-playground").addEventListener("click", onReset);
+  element("copy-config").addEventListener("click", onCopy);
   const previous = () => {
       offset = Math.max(0, offset - Number(value("page-size")));
       search();
@@ -321,6 +411,11 @@ export function mountPlayground(documents: readonly Product[]): () => void {
     debounce.dispose();
     worker?.dispose();
     controls.removeEventListener("change", rebuild);
+    presetButtons.forEach((button) =>
+      button.removeEventListener("click", onPreset),
+    );
+    element("reset-playground").removeEventListener("click", onReset);
+    element("copy-config").removeEventListener("click", onCopy);
     input.removeEventListener("input", onInput);
     input.removeEventListener("keydown", onKey);
     input.removeEventListener("blur", closeSuggestions);

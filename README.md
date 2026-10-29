@@ -2,16 +2,43 @@
 
 **Fast search. Simple API.**
 
-TypeScript-first, modular search with an Angular integration. Core never depends on Angular.
+A TypeScript-first search toolkit for applications that want control over their data, ranking and interface. Start with a zero-dependency local engine. Add Angular, workers, HTTP sources or diagnostics through explicit imports.
 
-This is a new rebuild, not recovered historical source. The original implementation and its reported evidence are unavailable. Current code and checks alone define implemented capabilities.
+[![Quality](https://github.com/yovi-labs/searchivo/actions/workflows/ci.yml/badge.svg?branch=develop)](https://github.com/yovi-labs/searchivo/actions/workflows/ci.yml)
+[![License: MIT](https://img.shields.io/badge/license-MIT-a6e3d4)](LICENSE)
+[![Status: private candidate](https://img.shields.io/badge/status-private_candidate-ff65b3)](CHANGELOG.md)
 
-## Development
+[Documentation](docs/README.md) · [Playground](apps/playground/README.md) · [Examples](examples) · [Benchmarks](benchmarks/README.md) · [Contributing](CONTRIBUTING.md)
 
-Node 24.22.1, pnpm 11.28.9. Run `pnpm install`, then `pnpm check`.
-Packages are private and unpublished. Use the workspace or install the validated local candidate tarballs together with `npm install ./searchivo-*.tgz`. Angular consumers also need the tested Angular peers. MIT licensed; compatibility is limited to the versions listed below.
+![Searchivo playground — guided experiments, configuration and live results](docs/assets/playground.png)
 
-## 30-second example
+## Why Searchivo?
+
+- **Own the index.** Typed documents, incremental mutations and deterministic results, without a hosted search service.
+- **Control relevance.** Field boosts, optional BM25 and bounded one-edit fuzzy matching. Inspect actual score contributions when needed.
+- **Build your interface.** Structured highlights, suggestions, refinements and cancellable state. Angular adds scoped providers, Signals and a native input directive.
+- **Pay for what you import.** Core has zero runtime dependencies. Workers, HTTP adapters, diagnostics and themes are optional.
+
+## Try the playground
+
+Requires Node **24.22.1** and pnpm **11.28.9**.
+
+```sh
+ git clone --branch develop https://github.com/yovi-labs/searchivo.git
+ cd searchivo
+ pnpm install --frozen-lockfile
+ pnpm build
+ pnpm build:website
+ pnpm preview:website
+```
+
+Open [the playground](http://127.0.0.1:4174/playground/) or [documentation](http://127.0.0.1:4174/docs/) while the preview is running. These are local URLs; no public site is deployed. The preview serves a production build, so rebuild after edits.
+
+Explore exact matching, typo recovery, BM25 explanations and real worker ranking. Adjust filters, compare scores, inspect query tokens, view the dataset and copy the engine configuration. [Read the playground walkthrough →](apps/playground/README.md)
+
+## Your first search
+
+Packages are **private and unpublished**. Use the workspace, or install the exact validated tarballs from a private candidate bundle. The package names below describe those local packages, not a public npm installation.
 
 ```ts
 import { createSearchEngine } from "@searchivo/core";
@@ -19,7 +46,7 @@ import { createSearchEngine } from "@searchivo/core";
 type Product = { id: number; name: string; description: string };
 const search = createSearchEngine<Product>({
   id: "id",
-  fields: { name: { boost: 3 }, description: { boost: 1 } },
+  fields: { name: { boost: 3 }, description: {} },
 });
 search.add([
   { id: 1, name: "Apple iPhone 15 Pro", description: "Premium smartphone" },
@@ -28,40 +55,60 @@ const results = search.search("iphone");
 // [{ id: 1, document: ..., score: 3 }]
 ```
 
-The [executable example](examples/core.ts) is compiled against the actual packed tarball and run by `pnpm check`.
+This snippet compiles and executes against the installed tarball in CI. See the [complete executable example](examples/core.ts) for BM25, fuzzy matching, filters, suggestions, state and explanations.
 
-## Implemented
+## Find the right package
 
-Portable zero-dependency core with typed configuration, Unicode NFKC tokenization, inverted-index exact OR retrieval, positive field boosts, stable weighted ranking, atomic validated add/upsert, remove/clear and index statistics. IDs are nonempty strings or finite numbers; numeric and string IDs are distinct. Duplicate add IDs reject the entire batch. Upserts retain insertion-order tie priority. Results contain frozen shallow document copies; nested data remains caller-owned.
+| Package               | Responsibility                                                                     | Documentation                                                                       |
+| --------------------- | ---------------------------------------------------------------------------------- | ----------------------------------------------------------------------------------- |
+| `@searchivo/core`     | Inverted index, mutations and relevance; optional entry points for advanced search | [Core](packages/core/README.md) · [Guide](docs/guide.md)                            |
+| `@searchivo/angular`  | Scoped providers, readonly Signals and native input enhancement                    | [Angular](packages/angular/README.md) · [Example](apps/angular-example/src/main.ts) |
+| `@searchivo/workers`  | Validated client/runtime protocol and transport ownership                          | [Workers](packages/workers/README.md)                                               |
+| `@searchivo/adapters` | Validated HTTP source, cancellation and timeouts                                   | [Adapters](packages/adapters/README.md)                                             |
+| `@searchivo/devtools` | Bounded local search-state recording                                               | [DevTools](packages/devtools/README.md)                                             |
+| `@searchivo/themes`   | Optional scoped CSS and Sass tokens                                                | [Themes](packages/themes/README.md)                                                 |
 
-The six-page website includes documentation, an interactive playground, examples, benchmark reports and generated core API declarations. Build with `pnpm build:website` and preview with `node scripts/serve.mjs dist/website 4174`. Optional CSS/Sass lives in `@searchivo/themes`. There is no deployed website URL. See the [complete guide](docs/guide.md).
+Core never imports Angular, RxJS, DOM or Node ambient types. [Architecture decisions →](docs/adr)
 
-Opt-in `@searchivo/core/explain` records actual score contributions and measured instrumentation timings. [`@searchivo/devtools`](packages/devtools/README.md) provides a bounded, disposable headless recorder. Ordinary search creates no explanation records.
+## Documentation that follows your task
 
-[`@searchivo/adapters`](packages/adapters/README.md) provides a validated POST-JSON HTTP source with runtime document guards, facet allowlists, cancellation and timeout cleanup. It shares the local source contract and works with the same state/Angular integration.
+![Searchivo documentation — searchable topics and learning paths](docs/assets/documentation.png)
 
-Optional [`@searchivo/workers`](packages/workers/README.md) supplies validated client/runtime entry points and explicit transport ownership. Browser and Node worker examples exercise real round trips. Cancellation abandons responses; it does not preempt CPU work or roll back mutations.
+- [Start indexing](docs/guide.md#indexing-and-ownership): IDs, duplicate handling, snapshots and atomic mutations.
+- [Tune relevance](docs/guide.md#query-semantics-and-ranking): query semantics, boosts and BM25.
+- [Build the results experience](docs/guide.md#filters-facets-sorting-and-pagination): filters, facets, stable sorting and pagination.
+- [Handle user input](docs/guide.md#suggestions-debounce-and-state): autocomplete, debounce and cancellation.
+- [Integrate Angular](packages/angular/README.md): `createSearchivo(source)`, scoped providers and `<input searchivo>`.
+- [Understand execution](docs/guide.md#workers): local, worker and HTTP boundaries.
 
-## Angular
+The website renders the [versioned guide](docs/guide.md) and generated core declarations. Markdown remains the documentation source of truth.
 
-`@searchivo/angular` provides `createSearchivo(source)` with typed scoped providers and Signals, plus standalone `SearchivoInputDirective` for `<input searchivo>`. Add `binding.provide()` to component providers, the directive to imports, and retrieve the handle with `binding.inject()`. Developers own the label and markup. IME composition is preserved and scope destruction cancels pending work. See the [Angular guide](packages/angular/README.md) and [runnable OnPush/zoneless example](apps/angular-example/src/main.ts). Build it with `pnpm build:example` and run `node scripts/serve.mjs` for a local preview on port 4173.
+## Quality and performance
 
-## Validation and measurements
+The [quality workflow](.github/workflows/ci.yml) enforces formatting, lint, strict types, per-file **100% library coverage** across four metrics, package boundaries, installed-tarball consumers, executable documentation, bundle budgets, website links, browser behavior, accessibility checks and dependency audit.
 
-Optional autocomplete, async suggestion groups and cancellable state are available from `@searchivo/core/suggestions`, `/source` and `/state`. `createSearchState(localSource(engine))` exposes query, results, loading, error, total, facets and duration, with abort and generation guards. Debounce uses an injected scheduler; see [ownership and lifecycle](docs/adr/0006-state.md).
+The recorded basic core consumer is **2,564 bytes raw / 1,248 gzip / 1,111 Brotli**, below the unchanged 5,000-byte gzip budget. Optional features are excluded from that consumer. These figures describe that measured entry point, not every application bundle. [Bundle evidence](docs/optional-bundle-measurements.json) · [Verification scope](docs/verification-candidate.md)
 
-`@searchivo/core/refinements` provides `refine(hits, options)` for typed equality, membership and numeric ranges, conjunctive pre-pagination facets, stable sorting and offset/limit pages. See [refinement semantics](docs/adr/0005-refinements.md).
+Seeded **1k / 10k / 100k** benchmarks cover repeated vocabulary, high-cardinality dictionaries and worker communication. Reports retain raw samples, environment and source revision. They are synthetic measurements, not production latency guarantees. [Methodology and reports →](benchmarks/README.md)
 
-Optional `@searchivo/core/fuzzy` exports `createFuzzySearch(engine)` for bounded one-edit corrections, and `@searchivo/core/highlight` exports `highlight(text, query)` for original UTF-16 ranges. See [limits and Unicode semantics](docs/adr/0004-fuzzy-highlights.md). These modules are absent from the basic consumer bundle.
+## Contribute
 
-Optional [BM25](docs/adr/0003-ranking.md) is available from `@searchivo/core/bm25`: pass `ranking: bm25({ k1: 1.2, b: 0.75 })` at construction. Custom pure per-field scoring functions receive corpus statistics. The base entry point does not import BM25. Invalid or overflowing scores fail explicitly.
+```sh
+pnpm check
+pnpm build:example
+pnpm build:website
+pnpm exec playwright install chromium
+pnpm test:browser
+```
 
-`pnpm check` checks formatting/lint, strict types, per-file 100% library coverage, dependency boundaries, packed ESM/declaration/doc consumers, Angular APF/strict-AOT consumers and a 5KB gzip core budget. `pnpm audit --audit-level=low` checks dependencies. Current tests exercise Node 24.22.1, TypeScript 6.0.3 and Angular 22.2.3 only. `pnpm build:example && pnpm build:website && pnpm test:browser` runs Chromium behavior and axe accessibility checks; these do not prove universal accessibility or field Core Web Vitals.
+Start with [CONTRIBUTING.md](CONTRIBUTING.md). Use the issue templates for bugs and proposals, and the pull-request checklist for behavior changes. See [SECURITY.md](SECURITY.md) for confidential reporting guidance.
 
-See [benchmark methodology](benchmarks/README.md), [raw reports](benchmarks/reports), and [index semantics/complexity](docs/adr/0002-index.md). Seeded 1k/10k/100k workloads distinguish repeated vocabulary from high-cardinality dictionaries. Post-index heap samples are not peak-memory measurements. No performance regression baseline has yet been established.
+## Status and compatibility
 
-[Source](https://github.com/yovi-labs/searchivo/tree/develop) · [Project tracker](https://app.notion.com/p/3f216fa3a42381689ffbd9169bea07ae)
+This is a new implementation, not recovered historical source. The synchronized `0.1.0-rebuild.0` candidate is pre-1.0, MIT licensed and unpublished. Tested compatibility: Node 24.22.1, TypeScript 6.0.3, Angular 22.2.3 and Playwright Chromium. Other combinations are unverified.
 
-## Private release candidates
+Known limits: snapshots are shallow; tokenization has no stemming; fuzzy expansion can truncate; filtering follows ranking; worker cancellation abandons replies rather than interrupting CPU work. The playground keeps fuzzy expansion, refinements and explanations local in worker mode. The guide documents these contracts explicitly.
 
-See [aggregate release notes](CHANGELOG.md) and the [version/compatibility policy](docs/adr/0012-release-policy.md). From a clean reviewed commit, run `pnpm check`, then `node scripts/prepare-candidate.mjs`. This creates six validated private tarballs, a SHA-256 manifest and a source ZIP in `artifacts/candidate-<revision>`. Extract the ZIP and run `node scripts/verify-extracted.mjs <candidate-directory> <extracted-searchivo-directory>` to compare every tracked file with Git and verify artifact hashes. Publication and deployment are separate approvals.
+[Changelog](CHANGELOG.md) · [Private candidate preparation](docs/adr/0012-release-policy.md) · [Project tracker](https://app.notion.com/p/3f216fa3a42381689ffbd9169bea07ae)
+
+Public npm publication, public releases, merging to `main` and deployment require separate approval. Previously prepared candidate manifests remain tied to their recorded revisions; later documentation changes do not silently replace those artifacts.
