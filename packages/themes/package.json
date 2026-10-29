@@ -1,0 +1,20 @@
+{
+  "name": "@searchivo/themes",
+  "version": "0.1.0-rebuild.0",
+  "private": true,
+  "sideEffects": [
+    "*.css"
+  ],
+  "files": [
+    "searchivo.css",
+    "_index.scss",
+    "README.md"
+  ],
+  "exports": {
+    "./css": "./searchivo.css",
+    "./scss": {
+      "sass": "./_index.scss",
+      "default": "./_index.scss"
+    }
+  }
+}

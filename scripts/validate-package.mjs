@@ -8,6 +8,7 @@ import {
 import { tmpdir } from "node:os";
 import { join, resolve } from "node:path";
 import { execFileSync } from "node:child_process";
+import { compileString, NodePackageImporter } from "sass";
 const root = process.cwd();
 const temp = mkdtempSync(join(tmpdir(), "searchivo-consumer-"));
 const npm = process.platform === "win32" ? "npm.exe" : "npm";
@@ -301,3 +302,72 @@ copyFileSync(
   join(root, "artifacts", devtoolsPack.filename),
 );
 console.log(`Packed DevTools consumer passed: ${devtoolsPack.filename}`);
+const themePack = JSON.parse(
+  run(
+    npm,
+    ["pack", "--json", "--pack-destination", temp],
+    resolve("packages/themes"),
+  ).toString(),
+)[0];
+for (const file of themePack.files)
+  if (!/^(package.json|README.md|searchivo.css|_index.scss)$/.test(file.path))
+    throw new Error(`Unexpected theme file: ${file.path}`);
+run(
+  npm,
+  [
+    "install",
+    "--ignore-scripts",
+    "--no-audit",
+    "--no-fund",
+    join(temp, themePack.filename),
+  ],
+  temp,
+);
+writeFileSync(
+  join(temp, "themes.mjs"),
+  `import {readFileSync} from 'node:fs'; const css = readFileSync(new URL(import.meta.resolve('@searchivo/themes/css')), 'utf8'); if (!css.includes('.searchivo-theme') || !css.includes(':focus-visible')) throw new Error('Theme CSS missing');`,
+);
+run(process.execPath, ["themes.mjs"], temp);
+const css = compileString(
+  '@use "pkg:@searchivo/themes/scss" as theme; .consumer { @include theme.tokens($accent: #abcdef); }',
+  { importers: [new NodePackageImporter(temp)] },
+).css;
+if (!css.includes("--searchivo-accent: #abcdef"))
+  throw new Error("Sass package consumer failed");
+copyFileSync(
+  join(temp, themePack.filename),
+  join(root, "artifacts", themePack.filename),
+);
+let snippet = 0;
+for (const file of ["README.md", "docs/guide.md"]) {
+  for (const match of readFileSync(file, "utf8").matchAll(
+    /```ts\r?\n([\s\S]*?)```/g,
+  )) {
+    const name = `docs-${snippet++}.ts`;
+    writeFileSync(join(temp, name), match[1]);
+    run(
+      process.execPath,
+      [
+        resolve("node_modules/typescript/bin/tsc"),
+        "--strict",
+        "--noUncheckedIndexedAccess",
+        "--exactOptionalPropertyTypes",
+        "--target",
+        "ES2022",
+        "--module",
+        "NodeNext",
+        "--lib",
+        "ES2022",
+        "--ignoreConfig",
+        "--outDir",
+        "doc-dist",
+        name,
+      ],
+      temp,
+    );
+    run(process.execPath, [`doc-dist/${name.replace(".ts", ".js")}`], temp);
+  }
+}
+console.log(
+  `Packed CSS/Sass imports and ${snippet} complete Markdown examples passed`,
+);

@@ -1,0 +1,39 @@
+.searchivo-theme {
+  --searchivo-background: #0b1220;
+  --searchivo-surface: #121c2f;
+  --searchivo-text: #f4f6fc;
+  --searchivo-muted: #acb9d1;
+  --searchivo-accent: #ff65b3;
+  color: var(--searchivo-text);
+  background: var(--searchivo-background);
+  color-scheme: dark;
+}
+.searchivo-theme input,
+.searchivo-theme select,
+.searchivo-theme button {
+  font: inherit;
+  color: inherit;
+  background: var(--searchivo-surface);
+  border: 1px solid #53627d;
+  border-radius: 6px;
+  min-height: 44px;
+  padding: 10px 12px;
+}
+.searchivo-theme :focus-visible {
+  outline: 2px solid var(--searchivo-accent);
+  outline-offset: 3px;
+}
+.searchivo-theme mark {
+  color: #0b1220;
+  background: #ff98ce;
+  border-radius: 2px;
+}
+@media (prefers-reduced-motion: reduce) {
+  .searchivo-theme *,
+  .searchivo-theme *::before,
+  .searchivo-theme *::after {
+    animation: none !important;
+    transition: none !important;
+    scroll-behavior: auto !important;
+  }
+}

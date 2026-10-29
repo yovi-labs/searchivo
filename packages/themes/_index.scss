@@ -1,0 +1,4 @@
+@mixin tokens($accent: #ff65b3, $background: #0b1220) {
+  --searchivo-accent: #{$accent};
+  --searchivo-background: #{$background};
+}

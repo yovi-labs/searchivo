@@ -1,0 +1,10 @@
+{
+  "name": "@searchivo/website",
+  "private": true,
+  "type": "module",
+  "dependencies": {
+    "@searchivo/core": "workspace:*",
+    "@searchivo/playground": "workspace:*",
+    "@searchivo/themes": "workspace:*"
+  }
+}
