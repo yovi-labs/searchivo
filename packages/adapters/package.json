@@ -6,7 +6,8 @@
   "sideEffects": false,
   "files": [
     "dist",
-    "README.md"
+    "README.md",
+    "LICENSE"
   ],
   "peerDependencies": {
     "@searchivo/core": "0.1.0-rebuild.0"
@@ -19,5 +20,12 @@
       "types": "./dist/index.d.ts",
       "import": "./dist/index.js"
     }
-  }
+  },
+  "license": "MIT",
+  "repository": {
+    "type": "git",
+    "url": "https://github.com/yovi-labs/searchivo.git",
+    "directory": "packages/adapters"
+  },
+  "description": "Searchivo optional adapters integration. Fast search. Simple API."
 }

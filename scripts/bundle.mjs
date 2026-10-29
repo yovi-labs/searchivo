@@ -54,3 +54,46 @@ writeFileSync(
   JSON.stringify(angularReport, null, 2),
 );
 console.log(angularReport);
+const optionalReports = {};
+for (const entry of [
+  "core/bm25",
+  "core/fuzzy",
+  "core/highlight",
+  "core/refinements",
+  "core/suggestions",
+  "core/state",
+  "core/explain",
+  "workers/client",
+  "workers/runtime",
+  "workers/web",
+  "adapters/index",
+  "devtools/index",
+]) {
+  const [pkg, name] = entry.split("/");
+  const output = await build({
+    entryPoints: [`packages/${pkg}/dist/${name}.js`],
+    bundle: true,
+    format: "esm",
+    minify: true,
+    write: false,
+  });
+  const bytes = output.outputFiles[0].contents;
+  optionalReports[entry] = {
+    raw: bytes.length,
+    gzip: gzipSync(bytes).length,
+    brotli: brotliCompressSync(bytes).length,
+  };
+}
+writeFileSync(
+  "artifacts/optional-bundles.json",
+  JSON.stringify(
+    {
+      scope:
+        "Independent entry bundles including their imported code; not additive application costs",
+      entries: optionalReports,
+    },
+    null,
+    2,
+  ),
+);
+console.log("Measured 12 optional entry bundles (raw/gzip/Brotli)");

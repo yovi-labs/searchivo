@@ -6,7 +6,8 @@
   "sideEffects": false,
   "files": [
     "dist",
-    "README.md"
+    "README.md",
+    "LICENSE"
   ],
   "peerDependencies": {
     "@searchivo/core": "0.1.0-rebuild.0"
@@ -27,5 +28,12 @@
       "types": "./dist/web.d.ts",
       "import": "./dist/web.js"
     }
-  }
+  },
+  "license": "MIT",
+  "repository": {
+    "type": "git",
+    "url": "https://github.com/yovi-labs/searchivo.git",
+    "directory": "packages/workers"
+  },
+  "description": "Searchivo optional workers integration. Fast search. Simple API."
 }

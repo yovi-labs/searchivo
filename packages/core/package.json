@@ -7,7 +7,8 @@
   "sideEffects": false,
   "files": [
     "dist",
-    "README.md"
+    "README.md",
+    "LICENSE"
   ],
   "exports": {
     "./explain": {
@@ -51,5 +52,6 @@
     "type": "git",
     "url": "https://github.com/yovi-labs/searchivo.git",
     "directory": "packages/core"
-  }
+  },
+  "license": "MIT"
 }

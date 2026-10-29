@@ -9,7 +9,7 @@ This is a new rebuild, not recovered historical source. The original implementat
 ## Development
 
 Node 24.22.1, pnpm 11.28.9. Run `pnpm install`, then `pnpm check`.
-Packages are private and unpublished. No npm installation or compatibility claim is made yet.
+Packages are private and unpublished. Use the workspace or install the validated local candidate tarballs together with `npm install ./searchivo-*.tgz`. Angular consumers also need the tested Angular peers. MIT licensed; compatibility is limited to the versions listed below.
 
 ## 30-second example
 
@@ -61,3 +61,7 @@ Optional [BM25](docs/adr/0003-ranking.md) is available from `@searchivo/core/bm2
 See [benchmark methodology](benchmarks/README.md), [raw reports](benchmarks/reports), and [index semantics/complexity](docs/adr/0002-index.md). Seeded 1k/10k/100k workloads distinguish repeated vocabulary from high-cardinality dictionaries. Post-index heap samples are not peak-memory measurements. No performance regression baseline has yet been established.
 
 [Source](https://github.com/yovi-labs/searchivo/tree/develop) · [Project tracker](https://app.notion.com/p/3f216fa3a42381689ffbd9169bea07ae)
+
+## Private release candidates
+
+See [aggregate release notes](CHANGELOG.md) and the [version/compatibility policy](docs/adr/0012-release-policy.md). From a clean reviewed commit, run `pnpm check`, then `node scripts/prepare-candidate.mjs`. This creates six validated private tarballs, a SHA-256 manifest and a source ZIP in `artifacts/candidate-<revision>`. Extract the ZIP and run `node scripts/verify-extracted.mjs <candidate-directory> <extracted-searchivo-directory>` to compare every tracked file with Git and verify artifact hashes. Publication and deployment are separate approvals.

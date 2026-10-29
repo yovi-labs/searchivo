@@ -59,7 +59,10 @@ export function validRequest<T>(
       return value.payload === null;
     case "add":
     case "upsert":
-      return Array.isArray(value.payload) && value.payload.every(isDocument);
+      return (
+        Array.isArray(value.payload) &&
+        Array.from(value.payload).every(isDocument)
+      );
     case "remove":
       return validId(value.payload);
     case "search":
@@ -88,7 +91,7 @@ export function validResult<T, K extends keyof Operations<T>>(
     case "search":
       return (
         Array.isArray(value) &&
-        value.every(
+        Array.from(value).every(
           (hit) =>
             record(hit) &&
             validId(hit.id) &&
@@ -100,7 +103,8 @@ export function validResult<T, K extends keyof Operations<T>>(
       );
     case "suggest":
       return (
-        Array.isArray(value) && value.every((term) => typeof term === "string")
+        Array.isArray(value) &&
+        Array.from(value).every((term) => typeof term === "string")
       );
     default:
       return value === true;

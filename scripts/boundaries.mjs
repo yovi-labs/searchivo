@@ -1,11 +1,11 @@
 import ts from "typescript";
 import { readFileSync, readdirSync } from "node:fs";
 import { join } from "node:path";
-function check(dir) {
+function check(dir, allowed) {
   for (const item of readdirSync(dir, { withFileTypes: true })) {
     const path = join(dir, item.name);
     if (item.isDirectory()) {
-      check(path);
+      check(path, allowed);
       continue;
     }
     if (!path.endsWith(".ts")) continue;
@@ -22,13 +22,27 @@ function check(dir) {
         (ts.isImportDeclaration(node) || ts.isExportDeclaration(node)) &&
         node.moduleSpecifier &&
         ts.isStringLiteral(node.moduleSpecifier) &&
-        !node.moduleSpecifier.text.startsWith(".")
+        !node.moduleSpecifier.text.startsWith(".") &&
+        !allowed.some(
+          (prefix) =>
+            node.moduleSpecifier.text === prefix ||
+            node.moduleSpecifier.text.startsWith(prefix + "/"),
+        )
       )
-        throw new Error(`Core external dependency: ${path}`);
+        throw new Error(
+          `Disallowed package dependency: ${path}: ${node.moduleSpecifier.text}`,
+        );
       ts.forEachChild(node, visit);
     }
     visit(source);
   }
 }
-check("packages/core/src");
-console.log("Core dependency direction and no-any boundary passed");
+for (const [name, allowed] of Object.entries({
+  core: [],
+  angular: ["@searchivo/core", "@angular/core"],
+  workers: ["@searchivo/core"],
+  adapters: ["@searchivo/core"],
+  devtools: ["@searchivo/core"],
+}))
+  check(`packages/${name}/src`, allowed);
+console.log("All library dependency directions and no-any boundaries passed");

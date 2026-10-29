@@ -76,6 +76,15 @@ test("loopback validates and executes readiness, indexing, mutations, search, su
   expect(a.messages.size + a.errors.size + b.messages.size).toBe(0);
 });
 test("validates unknown request shapes and every response type", () => {
+  // Structured clone preserves holes; Array.every alone silently skips them.
+  expect(
+    validRequest(
+      { version: 1, id: 1, operation: "add", payload: new Array(1) },
+      isDoc,
+    ),
+  ).toBe(false);
+  expect(validResult("search", new Array(1), isDoc)).toBe(false);
+  expect(validResult("suggest", new Array(1), isDoc)).toBe(false);
   const request = (operation: string, payload: unknown) => ({
     version: 1,
     id: 1,

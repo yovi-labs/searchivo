@@ -8,7 +8,8 @@
   "files": [
     "searchivo.css",
     "_index.scss",
-    "README.md"
+    "README.md",
+    "LICENSE"
   ],
   "exports": {
     "./css": "./searchivo.css",
@@ -16,5 +17,12 @@
       "sass": "./_index.scss",
       "default": "./_index.scss"
     }
-  }
+  },
+  "license": "MIT",
+  "repository": {
+    "type": "git",
+    "url": "https://github.com/yovi-labs/searchivo.git",
+    "directory": "packages/themes"
+  },
+  "description": "Searchivo optional themes integration. Fast search. Simple API."
 }

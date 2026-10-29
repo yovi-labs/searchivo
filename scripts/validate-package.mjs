@@ -9,6 +9,7 @@ import { tmpdir } from "node:os";
 import { join, resolve } from "node:path";
 import { execFileSync } from "node:child_process";
 import { compileString, NodePackageImporter } from "sass";
+import { createHash } from "node:crypto";
 const root = process.cwd();
 const temp = mkdtempSync(join(tmpdir(), "searchivo-consumer-"));
 const npm = process.platform === "win32" ? "npm.exe" : "npm";
@@ -25,7 +26,7 @@ const pack = JSON.parse(
     resolve("packages/core"),
   ).toString(),
 )[0];
-const allowed = /^(package.json|README.md|dist\/.+\.(js|d.ts))$/;
+const allowed = /^(package.json|README.md|LICENSE|dist\/.+\.(js|d.ts))$/;
 for (const file of pack.files)
   if (!allowed.test(file.path))
     throw new Error(`Unexpected packed file: ${file.path}`);
@@ -90,7 +91,7 @@ const angularPack = JSON.parse(
 )[0];
 for (const file of angularPack.files)
   if (
-    !/^(package.json|README.md|fesm2022\/.+\.mjs(\.map)?|types\/.+\.d.ts)$/.test(
+    !/^(package.json|README.md|LICENSE|fesm2022\/.+\.mjs(\.map)?|types\/.+\.d.ts)$/.test(
       file.path,
     )
   )
@@ -310,7 +311,11 @@ const themePack = JSON.parse(
   ).toString(),
 )[0];
 for (const file of themePack.files)
-  if (!/^(package.json|README.md|searchivo.css|_index.scss)$/.test(file.path))
+  if (
+    !/^(package.json|README.md|LICENSE|searchivo.css|_index.scss)$/.test(
+      file.path,
+    )
+  )
     throw new Error(`Unexpected theme file: ${file.path}`);
 run(
   npm,
@@ -370,4 +375,56 @@ for (const file of ["README.md", "docs/guide.md"]) {
 }
 console.log(
   `Packed CSS/Sass imports and ${snippet} complete Markdown examples passed`,
+);
+const packs = [
+  pack,
+  angularPack,
+  workerPack,
+  adapterPack,
+  devtoolsPack,
+  themePack,
+];
+for (const packed of packs) {
+  const metadata = JSON.parse(
+    readFileSync(
+      join(temp, "node_modules", packed.name, "package.json"),
+      "utf8",
+    ),
+  );
+  if (
+    metadata.private !== true ||
+    metadata.version !== "0.1.0-rebuild.0" ||
+    metadata.license !== "MIT" ||
+    metadata.repository?.url !== "https://github.com/yovi-labs/searchivo.git"
+  )
+    throw new Error(`Invalid metadata: ${packed.name}`);
+  if (!packed.files.some((file) => file.path === "LICENSE"))
+    throw new Error(`Missing license: ${packed.name}`);
+  const paths = new Set(packed.files.map((file) => "./" + file.path));
+  function checkExports(value) {
+    if (typeof value === "string") {
+      if (!paths.has(value))
+        throw new Error(`Missing export ${packed.name}: ${value}`);
+    } else for (const target of Object.values(value)) checkExports(target);
+  }
+  checkExports(metadata.exports);
+}
+writeFileSync(
+  "artifacts/packed-validation.json",
+  JSON.stringify(
+    {
+      revision: run("git", ["rev-parse", "HEAD"], root).toString().trim(),
+      dirty: Boolean(
+        run("git", ["status", "--porcelain"], root).toString().trim(),
+      ),
+      files: packs.map((packed) => ({
+        name: packed.filename,
+        sha256: createHash("sha256")
+          .update(readFileSync(join(root, "artifacts", packed.filename)))
+          .digest("hex"),
+      })),
+    },
+    null,
+    2,
+  ),
 );
