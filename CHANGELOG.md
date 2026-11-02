@@ -2,6 +2,8 @@
 
 ## Unreleased
 
+- Pin build-toolchain minimatch to patched 11.0.1 for [GHSA-g3hv-75wg-m249](https://github.com/advisories/GHSA-g3hv-75wg-m249); preserve the dependency-audit gate.
+
 - Angular feature lab with real worker/HTTP fixtures, ranking/mutation/refinement controls, grouped suggestions, diagnostic views and browser integration coverage across every package. The minimal directive example and isolated strict-AOT consumer remain available.
 
 - Guided playground experiments, reset, grouped controls, copyable configuration and a query/dataset inspector.
