@@ -93,6 +93,8 @@ Seeded **1k / 10k / 100k** benchmarks cover repeated vocabulary, high-cardinalit
 
 ## Contribute
 
+Explore every package in the [Angular feature lab](apps/angular-example/README.md): build with `pnpm build:example`, run `node scripts/serve.mjs`, then open [the local app](http://127.0.0.1:4173/#features).
+
 ```sh
 pnpm check
 pnpm build:example

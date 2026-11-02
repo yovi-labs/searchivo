@@ -109,10 +109,7 @@ run(
   ],
   temp,
 );
-copyFileSync(
-  resolve("apps/angular-example/src/main.ts"),
-  join(temp, "angular.ts"),
-);
+copyFileSync(resolve("examples/angular.ts"), join(temp, "angular.ts"));
 writeFileSync(
   join(temp, "tsconfig.angular.json"),
   JSON.stringify({

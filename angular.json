@@ -16,6 +16,7 @@
             "tsConfig": "apps/angular-example/tsconfig.json",
             "outputPath": "dist/angular-example",
             "optimization": true,
+            "styles": ["packages/themes/searchivo.css"],
             "outputHashing": "all"
           }
         },

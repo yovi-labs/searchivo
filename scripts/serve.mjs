@@ -6,6 +6,31 @@ createServer(async (req, res) => {
   const pathname = decodeURIComponent(
     new URL(req.url, "http://localhost").pathname,
   );
+  if (pathname.startsWith("/api/") && root.endsWith("browser")) {
+    try {
+      let body = "";
+      for await (const chunk of req) {
+        body += chunk;
+        if (body.length > 10000) throw new Error("Body too large");
+      }
+      const request = JSON.parse(body);
+      if (typeof request.query !== "string") throw new Error("Expected query");
+      const { fixtureSearch } =
+        await import("../dist/angular-example/feature-server.mjs");
+      res.setHeader("content-type", "application/json");
+      res.end(
+        JSON.stringify(
+          pathname === "/api/invalid"
+            ? { results: "invalid" }
+            : fixtureSearch(request.query),
+        ),
+      );
+    } catch {
+      res.writeHead(400);
+      res.end("Invalid fixture request");
+    }
+    return;
+  }
   const path = resolve(
     root,
     `.${pathname.endsWith("/") ? pathname + "index.html" : pathname}`,

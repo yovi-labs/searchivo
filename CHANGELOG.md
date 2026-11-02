@@ -2,6 +2,8 @@
 
 ## Unreleased
 
+- Angular feature lab with real worker/HTTP fixtures, ranking/mutation/refinement controls, grouped suggestions, diagnostic views and browser integration coverage across every package. The minimal directive example and isolated strict-AOT consumer remain available.
+
 - Guided playground experiments, reset, grouped controls, copyable configuration and a query/dataset inspector.
 - Searchable documentation topics, learning paths and copyable examples.
 - README previews and local onboarding, documentation/playground entry points, contributor and security guidance, issue forms and pull-request template.

@@ -92,12 +92,24 @@ importers:
       '@angular/platform-browser':
         specifier: 22.2.3
         version: 22.2.3(@angular/common@22.2.3(@angular/core@22.2.3(@angular/compiler@22.2.3)(rxjs@7.8.2))(rxjs@7.8.2))(@angular/core@22.2.3(@angular/compiler@22.2.3)(rxjs@7.8.2))
+      '@searchivo/adapters':
+        specifier: workspace:*
+        version: link:../../packages/adapters
       '@searchivo/angular':
         specifier: workspace:*
         version: link:../../packages/angular
       '@searchivo/core':
         specifier: workspace:*
         version: link:../../packages/core
+      '@searchivo/devtools':
+        specifier: workspace:*
+        version: link:../../packages/devtools
+      '@searchivo/themes':
+        specifier: workspace:*
+        version: link:../../packages/themes
+      '@searchivo/workers':
+        specifier: workspace:*
+        version: link:../../packages/workers
       rxjs:
         specifier: 7.8.2
         version: 7.8.2

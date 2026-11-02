@@ -8,6 +8,10 @@
     "@angular/core": "22.2.3",
     "@angular/common": "22.2.3",
     "@angular/platform-browser": "22.2.3",
-    "rxjs": "7.8.2"
+    "rxjs": "7.8.2",
+    "@searchivo/workers": "workspace:*",
+    "@searchivo/adapters": "workspace:*",
+    "@searchivo/devtools": "workspace:*",
+    "@searchivo/themes": "workspace:*"
   }
 }

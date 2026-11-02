@@ -39,6 +39,10 @@ const search = createSearchivo(localSource(engine));
 class App {
   readonly search = search.inject();
 }
-void bootstrapApplication(App, {
+const root =
+  location.hash === "#features"
+    ? (await import("./features.js")).Features
+    : App;
+void bootstrapApplication(root, {
   providers: [provideZonelessChangeDetection()],
 });
