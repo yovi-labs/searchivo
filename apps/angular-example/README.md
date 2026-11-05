@@ -29,3 +29,7 @@ After building both examples and website, run `pnpm test:browser`. Browser tests
 Worker and HTTP use independent fixed BM25 fixture indexes with name boost 3. Mutations and ranking controls affect the local engine. Fuzzy expansion, refinements and explanations remain local; diagnostic explanations describe the local engine. HTTP fixtures exist only in the local preview server, not a production backend. The slow fixture intentionally ignores abort to test generation protection. Four synthetic products are behavior fixtures, not a benchmark.
 
 The isolated strict-AOT tarball consumer is [examples/angular.ts](../../examples/angular.ts). This feature app consumes all packages through the workspace.
+
+Both search inputs share one query Signal and the same refinement pipeline. The catalog adds a 100 ms debounce; the bound input and programmatic button search immediately. Both inputs use the native directive's IME composition handling. Cancel stops pending debounce, suggestions and the active request, and subsequent typing starts a new search.
+
+Ranking and name-boost changes rebuild the local index from its current documents, preserving additions, updates, removals and an empty index. Only Reset index restores the original fixtures. Add document inserts fixture ID 5 when absent, including after Clear index, and leaves an existing ID unchanged.

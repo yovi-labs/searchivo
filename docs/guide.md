@@ -101,7 +101,7 @@ Stable scalar sorting retains relevance order for equal values. String sorting u
 
 createAutocomplete uses a lazy sorted dictionary and binary prefix lookup. Empty/multiple-token queries produce no suggestions. groupedSuggestions accepts named async sources, preserves group order and rejects the group if a source fails. Cancellation is checked before and after resolution.
 
-createSearchState exposes query, results, loading, error, total, facets and duration. It combines cancellation with request generations so a transport ignoring abort cannot overwrite newer state. Previous results remain visible while loading. Dispose cancels and removes subscribers. Subscribers must not throw or mutate snapshots. createDebouncer accepts a platform scheduler returning a cancellation function; it is separate from the synchronous engine. The playground supplies minimum-length behavior as application policy.
+createSearchState exposes query, results, loading, error, total, facets and duration. It combines cancellation with request generations so a transport ignoring abort cannot overwrite newer state. Previous results remain visible while loading. Dispose cancels and removes subscribers. Subscribers must not throw or mutate snapshots. createDebouncer accepts a platform scheduler returning a cancellation function; it is separate from the synchronous engine. Its cancel() method drops pending work while allowing later submissions; dispose() permanently closes it. The playground supplies minimum-length behavior as application policy.
 
 ## Angular
 

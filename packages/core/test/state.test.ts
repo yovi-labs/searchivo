@@ -128,6 +128,36 @@ test("debounce replaces pending calls and cleans up without platform globals", (
   for (const delay of [-1, NaN, Infinity])
     expect(() => createDebouncer(run, schedule, delay)).toThrow("delay");
 });
+test("debounce cancellation suppresses pending work and permits later submissions", () => {
+  vi.useFakeTimers();
+  try {
+    const run = vi.fn();
+    const debounce = createDebouncer<string>(
+      run,
+      (callback, delay) => {
+        const timer = setTimeout(callback, delay);
+        return () => clearTimeout(timer);
+      },
+      100,
+    );
+    debounce.cancel();
+    debounce.submit("cancelled");
+    debounce.cancel();
+    debounce.cancel();
+    vi.advanceTimersByTime(100);
+    expect(run).not.toHaveBeenCalled();
+    debounce.submit("resumed");
+    vi.advanceTimersByTime(100);
+    expect(run).toHaveBeenCalledExactlyOnceWith("resumed");
+    debounce.submit("disposed");
+    debounce.dispose();
+    vi.advanceTimersByTime(100);
+    expect(run).toHaveBeenCalledTimes(1);
+  } finally {
+    vi.useRealTimers();
+  }
+});
+
 test("prefix autocomplete uses lexical order and refreshes on mutations", () => {
   const engine = createSearchEngine({ id: "id", fields: { text: {} } }, [
     { id: 1, text: "banana apple application apex zed" },

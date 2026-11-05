@@ -95,16 +95,20 @@ export function createSearchState<T>(
 }
 /** Platform scheduler returns a function that cancels its scheduled callback. */
 export type Scheduler = (callback: () => void, delay: number) => () => void;
-/** Debounce independently of the engine/controller; cancel pending work on disposal. */
+/** Debounce independently of the engine/controller. Cancel pending work for reuse; dispose permanently. */
 export function createDebouncer<T>(
   run: (value: T) => void,
   schedule: Scheduler,
   delay: number,
-): { submit(value: T): void; dispose(): void } {
+): { submit(value: T): void; cancel(): void; dispose(): void } {
   if (!Number.isFinite(delay) || delay < 0)
     throw new Error("debounce delay must be finite and nonnegative");
   let cancel: (() => void) | undefined;
   let disposed = false;
+  function cancelPending(): void {
+    cancel?.();
+    cancel = undefined;
+  }
   return {
     submit(value) {
       if (disposed) throw new Error("Debouncer is disposed");
@@ -114,10 +118,10 @@ export function createDebouncer<T>(
         run(value);
       }, delay);
     },
+    cancel: cancelPending,
     dispose() {
       disposed = true;
-      cancel?.();
-      cancel = undefined;
+      cancelPending();
     },
   };
 }

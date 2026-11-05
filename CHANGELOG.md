@@ -2,6 +2,8 @@
 
 ## Unreleased
 
+- Fix Angular feature-lab query/refinement synchronization, pending-search cancellation, IME composition and document preservation across ranking changes. Add browser regressions for all five review findings and reusable `createDebouncer.cancel()`.
+
 - Pin build-toolchain minimatch to patched 11.0.1 for [GHSA-g3hv-75wg-m249](https://github.com/advisories/GHSA-g3hv-75wg-m249); preserve the dependency-audit gate.
 
 - Angular feature lab with real worker/HTTP fixtures, ranking/mutation/refinement controls, grouped suggestions, diagnostic views and browser integration coverage across every package. The minimal directive example and isolated strict-AOT consumer remain available.

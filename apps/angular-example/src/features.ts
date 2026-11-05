@@ -2,6 +2,7 @@ import {
   Component,
   ChangeDetectionStrategy,
   DestroyRef,
+  Directive,
   inject,
   signal,
 } from "@angular/core";
@@ -18,7 +19,12 @@ import {
 import { createCancellation, type SearchSource } from "@searchivo/core/source";
 import { createDebouncer } from "@searchivo/core/state";
 import { explainSearch } from "@searchivo/core/explain";
-import { createSearchivo, SearchivoInputDirective } from "@searchivo/angular";
+import {
+  createSearchivo,
+  SEARCHIVO_INPUT,
+  SearchivoInputDirective,
+  type SearchivoInput,
+} from "@searchivo/angular";
 import { createWorkerClient } from "@searchivo/workers/client";
 import { webTransport } from "@searchivo/workers/web";
 import { createHttpSource } from "@searchivo/adapters";
@@ -32,11 +38,36 @@ let activeSource: SearchSource<Product> = () => ({
   total: 0,
   facets: {},
 });
+/** Reuse the native directive's IME handling with the catalog's debounce policy. */
+@Directive({
+  selector: "input[labCatalog]",
+  standalone: true,
+  hostDirectives: [SearchivoInputDirective],
+  providers: [
+    {
+      provide: SEARCHIVO_INPUT,
+      useFactory: () => inject(Features).catalogBinding,
+    },
+  ],
+  host: { "(compositionstart)": "cancel()" },
+})
+class CatalogInputDirective {
+  private readonly lab = inject(Features);
+  cancel() {
+    this.lab.cancel();
+  }
+}
 @Component({
   selector: "app-root",
   standalone: true,
-  imports: [JsonPipe, SearchivoInputDirective],
-  providers: scope.provide(),
+  imports: [JsonPipe, SearchivoInputDirective, CatalogInputDirective],
+  providers: [
+    ...scope.provide(),
+    {
+      provide: SEARCHIVO_INPUT,
+      useFactory: () => inject(Features).inputBinding,
+    },
+  ],
   changeDetection: ChangeDetectionStrategy.OnPush,
   template: `<main class="searchivo-theme">
     <p>SEARCHIVO / ANGULAR FEATURE LAB</p>
@@ -59,6 +90,7 @@ let activeSource: SearchSource<Product> = () => ({
         >Source
         <select
           aria-label="Source"
+          [value]="mode"
           (change)="mode = $any($event.target).value; run()"
         >
           <option>local</option>
@@ -129,12 +161,7 @@ let activeSource: SearchSource<Product> = () => ({
     </section>
     <section>
       <label for="lab-query">Search feature catalog</label
-      ><input
-        id="lab-query"
-        type="search"
-        [value]="query"
-        (input)="input($any($event.target).value)"
-      />
+      ><input id="lab-query" type="search" labCatalog />
       <p>
         100 ms debounce. Worker/HTTP fixtures use BM25 with boost 3; fuzzy
         expansion, refinements and explanations run locally.
@@ -143,7 +170,7 @@ let activeSource: SearchSource<Product> = () => ({
         <div>
           {{ group.label }}:
           @for (term of group.suggestions; track term) {
-            <button (click)="query = term; run()">{{ term }}</button>
+            <button (click)="setQuery(term)">{{ term }}</button>
           }
         </div>
       }
@@ -154,7 +181,7 @@ let activeSource: SearchSource<Product> = () => ({
             : handle.state().total + " matches"
         }}{{ handle.state().error ? " · Search failed" : "" }}
       </p>
-      <button (click)="handle.controller.cancel()">Cancel</button
+      <button (click)="cancel()">Cancel</button
       ><button (click)="race()">Test stale response</button>
       @for (hit of handle.state().results; track hit.id) {
         <article>
@@ -192,7 +219,7 @@ let activeSource: SearchSource<Product> = () => ({
       ><button (click)="mutate('upsert')">Update document</button
       ><button (click)="mutate('remove')">Remove document</button
       ><button (click)="mutate('clear')">Clear index</button
-      ><button (click)="rebuild()">Reset index</button>
+      ><button (click)="resetIndex()">Reset index</button>
       <p>{{ engine.stats() | json }}</p>
       <p>
         Mutations affect the local engine. Worker/HTTP use independent fixture
@@ -203,13 +230,13 @@ let activeSource: SearchSource<Product> = () => ({
       <h2>Directive synchronization</h2>
       <label for="bound">Bound query</label
       ><input id="bound" searchivo type="search" /><button
-        (click)="handle.setQuery('Pixel')"
+        (click)="setQuery('Pixel')"
       >
         Programmatic Pixel
       </button>
       <p>
-        Native directive uses this same scoped source. Feature catalog input
-        adds debounce and refinements.
+        Both inputs share the query and refinements. The feature catalog input
+        adds a 100 ms debounce; both preserve IME composition.
       </p>
     </section>
     <details>
@@ -273,15 +300,24 @@ let activeSource: SearchSource<Product> = () => ({
 })
 export class Features {
   readonly handle = scope.inject();
-  engine = this.makeEngine();
   ranking = "BM25";
   boost = 3;
+  private documents = new Map(products.map((product) => [product.id, product]));
+  engine = this.makeEngine();
   fuzzy = false;
   mode = "local";
   category = "";
   maxPrice = 2000;
   sort = "Relevance";
-  query = "";
+  readonly query = signal("");
+  readonly inputBinding: SearchivoInput = {
+    query: this.query.asReadonly(),
+    setQuery: (query) => this.setQuery(query),
+  };
+  readonly catalogBinding: SearchivoInput = {
+    query: this.query.asReadonly(),
+    setQuery: (query) => this.input(query),
+  };
   offset = 0;
   limit = 2;
   readonly explanation = signal<unknown>(null);
@@ -346,15 +382,19 @@ export class Features {
     return createSearchEngine<Product>(
       {
         id: "id",
-        fields: { name: { boost: this.boost ?? 3 }, text: {} },
+        fields: { name: { boost: this.boost }, text: {} },
         ...(this.ranking === "Weighted" ? {} : { ranking: bm25() }),
       },
-      products,
+      [...this.documents.values()],
     );
   }
   rebuild() {
     this.engine = this.makeEngine();
     this.run();
+  }
+  resetIndex() {
+    this.documents = new Map(products.map((product) => [product.id, product]));
+    this.rebuild();
   }
   setBoost(value: string) {
     const boost = Number(value);
@@ -364,10 +404,21 @@ export class Features {
     }
   }
   input(query: string) {
-    this.query = query;
+    this.cancel();
+    this.query.set(query);
     this.debounce.submit(undefined);
   }
+  setQuery(query: string) {
+    this.query.set(query);
+    this.run();
+  }
+  cancel() {
+    this.debounce.cancel();
+    this.cancellation.abort();
+    this.handle.controller.cancel();
+  }
   run(reset = true) {
+    this.debounce.cancel();
     if (reset) this.offset = 0;
     this.cancellation.abort();
     this.cancellation = createCancellation();
@@ -383,7 +434,7 @@ export class Features {
             ["phone", "laptop"].filter((term) => term.startsWith(query)),
         },
       ],
-      this.query,
+      this.query(),
       this.cancellation.signal,
     )
       .then((groups) => this.groups.set(groups))
@@ -391,14 +442,16 @@ export class Features {
     this.explanation.set(
       explainSearch(
         this.engine,
-        this.query,
+        this.query(),
         this.fuzzy
-          ? { expandedTerms: createFuzzySearch(this.engine)(this.query).terms }
+          ? {
+              expandedTerms: createFuzzySearch(this.engine)(this.query()).terms,
+            }
           : {},
       ),
     );
     void this.handle.controller.search({
-      query: this.query,
+      query: this.query(),
       filters: [
         ...(this.category
           ? [
@@ -421,15 +474,17 @@ export class Features {
   }
   race() {
     this.mode = "slow";
-    this.query = "phone";
-    this.run();
-    this.query = "laptop";
-    this.run();
+    this.setQuery("phone");
+    this.setQuery("laptop");
   }
   mutate(operation: string) {
-    if (operation === "clear") this.engine.clear();
-    else if (operation === "remove") this.engine.remove(5);
-    else {
+    if (operation === "clear") {
+      this.engine.clear();
+      this.documents.clear();
+    } else if (operation === "remove") {
+      this.engine.remove(5);
+      this.documents.delete(5);
+    } else {
       const doc = {
         id: 5,
         name: operation === "upsert" ? "Updated phone" : "Added phone",
@@ -438,13 +493,19 @@ export class Features {
         category: "Phones",
       };
       if (operation === "add") {
-        if (this.engine.stats().documents === 4) this.engine.add([doc]);
-      } else this.engine.upsert([doc]);
+        if (!this.documents.has(doc.id)) {
+          this.engine.add([doc]);
+          this.documents.set(doc.id, doc);
+        }
+      } else {
+        this.engine.upsert([doc]);
+        this.documents.set(doc.id, doc);
+      }
     }
     this.run();
   }
   parts(text: string) {
-    const ranges = highlight(text, this.query);
+    const ranges = highlight(text, this.query());
     let cursor = 0;
     const parts: { text: string; match: boolean }[] = [];
     for (const range of ranges) {
