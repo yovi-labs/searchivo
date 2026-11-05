@@ -1,0 +1,218 @@
+<div class="store">
+  <header class="topbar">
+    <a class="wordmark" href="/#catalog">s<span>↗</span> / market</a>
+    <span class="topnote">A Searchivo × Angular experience</span>
+    <a href="/#features">Feature lab ↗</a>
+  </header>
+  <main>
+    <section class="intro">
+      <div>
+        <p class="eyebrow">THE EVERYDAY, UPGRADED</p>
+        <h1>Find your next<br /><em>good thing.</em></h1>
+        <p class="lede">10,000 products. One search away.</p>
+      </div>
+      <div class="intro-note">
+        <span class="live-dot"></span> All 10,000 products indexed locally
+        <p>
+          A fictional catalog built for hands-on testing.<br />Your searches
+          stay in this browser.
+        </p>
+      </div>
+    </section>
+    <section class="search-area" aria-label="Catalog search">
+      <div class="search-row">
+        <span aria-hidden="true">⌕</span
+        ><label class="sr-only" for="catalog-search">Search products</label
+        ><input
+          id="catalog-search"
+          searchivo
+          type="search"
+          maxlength="200"
+          placeholder="Try wireless headphones, camping tent, or SKU00001…"
+          aria-describedby="search-help"
+          (compositionstart)="cancel()"
+        /><button class="dark" (click)="run()">
+          Search <span aria-hidden="true">↗</span>
+        </button>
+      </div>
+      <div class="search-help" id="search-help">
+        Search by product, brand, color or SKU. Matches any word; use filters to
+        narrow your results. Typos recover automatically when exact search finds
+        nothing.
+      </div>
+      <div class="quick">
+        <span>Try a search</span>@for (term of ['wireless headphones',
+        'ergonomic chair', 'coffee', 'hiking', 'midnight']; track term) {<button
+          (click)="setQuery(term)"
+        >
+          {{term}} ↗</button
+        >}
+      </div>
+      @if (suggestions().length) {
+      <div class="suggestions" aria-label="Suggested searches">
+        <span>Suggestions</span>@for(term of suggestions(); track term) {<button
+          (click)="setQuery(term)"
+        >
+          {{term}}</button
+        >}
+      </div>
+      }
+    </section>
+    <div class="catalog-layout">
+      <aside aria-label="Product filters">
+        <div class="filter-heading">
+          <h2>Refine your find</h2>
+          <button class="text-button" (click)="reset()">Reset all</button>
+        </div>
+        <label for="category">Category</label
+        ><select
+          id="category"
+          [value]="category"
+          (change)="category = $any($event.target).value; run()"
+        >
+          <option value="">All categories</option>
+          @for(item of categories; track item) {
+          <option>{{item}}</option>
+          }
+        </select>
+        <label for="brand">Brand</label
+        ><select
+          id="brand"
+          [value]="brand"
+          (change)="brand = $any($event.target).value; run()"
+        >
+          <option value="">All brands</option>
+          @for(item of brands; track item) {
+          <option>{{item}}</option>
+          }
+        </select>
+        <label for="price"
+          >Maximum price
+          <strong>{{maxPrice | currency:'USD':'symbol':'1.0-0'}}</strong></label
+        ><input
+          id="price"
+          type="range"
+          min="0"
+          max="1500"
+          step="25"
+          [value]="maxPrice"
+          (input)="maxPrice = +$any($event.target).value; run()"
+        />
+        <div class="range-ends"><span>$0</span><span>$1,500</span></div>
+        <label class="checkbox"
+          ><input
+            type="checkbox"
+            [checked]="stockOnly"
+            (change)="stockOnly = $any($event.target).checked; run()"
+          />
+          In stock only</label
+        >
+        <div class="engine-note">
+          <span class="eyebrow">POWERED BY SEARCHIVO</span>
+          <p>
+            BM25 ranking · weighted fields<br />Typo recovery · live filtering
+          </p>
+          <p>
+            Index built in {{indexMs | number:'1.1-1'}} ms<br />Angular ·
+            Signals · zoneless
+          </p>
+        </div>
+      </aside>
+      <section aria-label="Product results">
+        <div class="results-toolbar">
+          <div>
+            <h2>{{query() ? 'Your discoveries' : 'Explore the collection'}}</h2>
+            <p role="status">
+              {{search.state().loading ? 'Searching…' : (search.state().total |
+              number) + ' products'}} @if(search.state().metadata; as metadata)
+              {<span>
+                · {{ $any(metadata['elapsedMs']) | number:'1.1-1' }} ms</span
+              >}
+            </p>
+          </div>
+          <div>
+            <label class="sr-only" for="sort">Sort products</label
+            ><select
+              id="sort"
+              [value]="sort"
+              (change)="sort = $any($event.target).value; run()"
+            >
+              <option value="relevance">Recommended</option>
+              <option value="price-asc">Price: low to high</option>
+              <option value="price-desc">Price: high to low</option>
+              <option value="rating">Highest rated</option>
+            </select>
+          </div>
+        </div>
+        @if(search.state().error) {
+        <p role="alert">
+          Search could not complete. Try again with a shorter query.
+        </p>
+        } @if(search.state().metadata?.['corrected']) {
+        <p class="correction">
+          No exact matches. Showing results with typo recovery.
+        </p>
+        }
+        <div class="product-grid">
+          @for(hit of search.state().results; track hit.id) {
+          <article class="product-card">
+            <div
+              class="product-art"
+              [attr.data-category]="hit.document.category"
+            >
+              <span class="art-label">{{hit.document.brand}}</span>
+              <div class="object" aria-hidden="true"><span></span></div>
+              <span class="art-category">{{hit.document.category}}</span>
+            </div>
+            <div class="card-body">
+              <div class="card-meta">
+                <span>{{hit.document.brand}} / {{hit.document.color}}</span
+                ><span class="rating"
+                  >★ {{hit.document.rating | number:'1.1-1'}}</span
+                >
+              </div>
+              <h3>
+                @for(part of parts(hit.document.name); track $index)
+                {@if(part.match) {<mark>{{part.text}}</mark>} @else
+                {{{part.text}}}}
+              </h3>
+              <p class="description">{{hit.document.description}}</p>
+              <div class="card-bottom">
+                <strong>{{hit.document.price | currency}}</strong
+                ><span [class.unavailable]="!hit.document.inStock"
+                  >{{hit.document.inStock ? '● In stock' : 'Out of
+                  stock'}}</span
+                >
+              </div>
+              <span class="sku">{{hit.id}}</span>
+            </div>
+          </article>
+          } @empty {
+          <div class="empty">
+            <h3>No discoveries just yet.</h3>
+            <p>Try a broader word or reset your filters.</p>
+            <button class="dark" (click)="reset()">Explore all products</button>
+          </div>
+          }
+        </div>
+        <nav class="pagination" aria-label="Catalog pages">
+          <button [disabled]="offset === 0" (click)="page(-1)">
+            ← Previous</button
+          ><span
+            >Page {{offset / pageSize + 1}} · {{search.state().total | number}}
+            results</span
+          ><button
+            [disabled]="offset + pageSize >= search.state().total"
+            (click)="page(1)"
+          >
+            Next →
+          </button>
+        </nav>
+      </section>
+    </div>
+    <footer>
+      <span>Made to be explored.</span
+      ><span>10,000 deterministic, fictional products · USD · no checkout</span>
+    </footer>
+  </main>
+</div>

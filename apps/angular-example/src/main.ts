@@ -40,9 +40,13 @@ class App {
   readonly search = search.inject();
 }
 const root =
-  location.hash === "#features"
-    ? (await import("./features.js")).Features
-    : App;
+  location.hash === "#catalog"
+    ? (await import("./catalog.js")).Catalog
+    : location.hash === "#features"
+      ? (await import("./features.js")).Features
+      : App;
+// Each demo bootstraps its own root; changing demo hashes starts a fresh scope.
+window.addEventListener("hashchange", () => location.reload());
 void bootstrapApplication(root, {
   providers: [provideZonelessChangeDetection()],
 });

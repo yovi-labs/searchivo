@@ -51,6 +51,7 @@ test("Angular cancel suppresses debounce and immediate queries supersede pending
     name: "Search feature catalog",
   });
   // Dispatch in one task so the click is guaranteed to precede the debounce timer.
+  await expect(catalog).toBeVisible();
   await page.evaluate(() => {
     const input = document.querySelector<HTMLInputElement>("#lab-query")!;
     input.value = "phone";

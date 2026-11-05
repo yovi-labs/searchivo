@@ -2,6 +2,8 @@
 
 ## Unreleased
 
+- Add an Angular shopping catalog with 10,000 deterministic fictional products, BM25 retrieval, fallback typo recovery, filters, sorting, pagination and browser verification for manual integration testing.
+
 - Fix Angular feature-lab query/refinement synchronization, pending-search cancellation, IME composition and document preservation across ranking changes. Add browser regressions for all five review findings and reusable `createDebouncer.cancel()`.
 
 - Pin build-toolchain minimatch to patched 11.0.1 for [GHSA-g3hv-75wg-m249](https://github.com/advisories/GHSA-g3hv-75wg-m249); preserve the dependency-audit gate.

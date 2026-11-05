@@ -95,6 +95,8 @@ Seeded **1k / 10k / 100k** benchmarks cover repeated vocabulary, high-cardinalit
 
 Explore every package in the [Angular feature lab](apps/angular-example/README.md): build with `pnpm build:example`, run `node scripts/serve.mjs`, then open [the local app](http://127.0.0.1:4173/#features).
 
+Manually test Searchivo in a shopping-style Angular app with [10,000 fictional products](http://127.0.0.1:4173/#catalog), live search, typo recovery, filters, sorting and pagination. It runs on the same preview server. [Catalog details](apps/angular-example/README.md).
+
 ```sh
 pnpm check
 pnpm build:example

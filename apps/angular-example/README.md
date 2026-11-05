@@ -11,6 +11,8 @@ node scripts/serve.mjs
 
 Open [the local feature lab](http://127.0.0.1:4173/#features). The [minimal directive example](http://127.0.0.1:4173/) remains available.
 
+For hands-on shopping-style search, open [the 10,000-product catalog](http://127.0.0.1:4173/#catalog). It generates deterministic fictional products across eight categories, indexes them with Searchivo BM25, and uses the Angular binding for query state. Try `coffee`, `headphnoes` (typo recovery), `ergonomic chair`, `midnight`, or exact SKU `SKU00001`. Search matches any word; category, brand, maximum price and stock filters narrow results. Sort by price or rating and page through 24 products at a time. Empty queries browse the full collection. Typo recovery runs only when exact retrieval has no hits. Timings show this browser's index construction and retrieval/refinement duration; they are not benchmark claims. Product illustrations, prices, stock and ratings are synthetic; no remote data service or checkout is involved.
+
 | Feature                              | Try it                                                            |
 | ------------------------------------ | ----------------------------------------------------------------- |
 | BM25 and field boosts                | Search apple, select Weighted, adjust name boost                  |
