@@ -2,6 +2,16 @@
 
 Build a local search experience with explicit ownership, typed data and optional integrations.
 
+[Live documentation](https://searchivo.netlify.app/docs/) · [Live Angular demo](https://searchivo.netlify.app/) · [10,000-product catalog](https://searchivo.netlify.app/#catalog) · [Feature lab](https://searchivo.netlify.app/#features) · [Angular source](../apps/angular-example/src)
+
+## Learning library
+
+- Tutorial: [Your first typed search](tutorial.md).
+- Concepts: [Engine and integration contracts](guide.md).
+- Recipes: [Angular](angular.md), [async state, HTTP and workers](recipes.md).
+- Reference: [Core](reference-core.md), [interaction](reference-interaction.md), [Angular](reference-angular.md), [integrations](reference-integrations.md), [public inventory](public-api.md).
+- Operations: [Performance and complexity](performance.md), [security](security.md), [deployment and troubleshooting](deployment.md).
+
 ## Choose a path
 
 | Goal                             | Start here                                                                  | Runnable source                                            |
@@ -24,7 +34,7 @@ pnpm build:website
 pnpm preview:website
 ```
 
-Open [documentation](http://127.0.0.1:4174/docs/) or the [playground](http://127.0.0.1:4174/playground/) while the preview is running. The guide has topic search, copyable examples and links to generated API declarations. These are local preview URLs; a public website has not been deployed.
+Open [documentation](http://127.0.0.1:4174/docs/) or the [playground](http://127.0.0.1:4174/playground/) while the preview is running. The guide has topic search, copyable examples and links to generated API declarations. These are local preview URLs. Use the public links above for shared demos.
 
 ## Reference and maintenance
 

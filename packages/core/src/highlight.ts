@@ -12,6 +12,7 @@ export function highlight(
   query: string,
 ): readonly HighlightRange[] {
   const terms = new Set(tokenize(query));
+  if (terms.size === 0) return [];
   const ranges: HighlightRange[] = [];
   const starts: number[] = [],
     ends: number[] = [];

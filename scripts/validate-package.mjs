@@ -4,6 +4,7 @@ import {
   readFileSync,
   mkdirSync,
   copyFileSync,
+  readdirSync,
 } from "node:fs";
 import { tmpdir } from "node:os";
 import { join, resolve } from "node:path";
@@ -341,12 +342,37 @@ copyFileSync(
   join(root, "artifacts", themePack.filename),
 );
 let snippet = 0;
-for (const file of ["README.md", "docs/guide.md"]) {
+for (const file of [
+  "README.md",
+  ...readdirSync("docs")
+    .filter((name) => name.endsWith(".md"))
+    .map((name) => `docs/${name}`),
+]) {
   for (const match of readFileSync(file, "utf8").matchAll(
-    /```ts\r?\n([\s\S]*?)```/g,
+    /```(ts|typescript)\r?\n([\s\S]*?)```/g,
   )) {
     const name = `docs-${snippet++}.ts`;
-    writeFileSync(join(temp, name), match[1]);
+    writeFileSync(join(temp, name), match[2]);
+    if (match[1] === "typescript") {
+      const config = JSON.parse(
+        readFileSync(join(temp, "tsconfig.angular.json"), "utf8"),
+      );
+      config.files = [name];
+      writeFileSync(
+        join(temp, "tsconfig.docs-angular.json"),
+        JSON.stringify(config),
+      );
+      run(
+        process.execPath,
+        [
+          resolve("node_modules/@angular/compiler-cli/bundles/src/bin/ngc.js"),
+          "-p",
+          join(temp, "tsconfig.docs-angular.json"),
+        ],
+        temp,
+      );
+      continue;
+    }
     run(
       process.execPath,
       [
@@ -359,7 +385,7 @@ for (const file of ["README.md", "docs/guide.md"]) {
         "--module",
         "NodeNext",
         "--lib",
-        "ES2022",
+        "ES2022,DOM",
         "--ignoreConfig",
         "--outDir",
         "doc-dist",

@@ -21,6 +21,11 @@ const search = createSearchivo(localSource(engine));
   changeDetection: ChangeDetectionStrategy.OnPush,
   template: `<main>
     <h1>Searchivo Angular</h1>
+    <nav aria-label="Examples">
+      <a href="/#catalog">10,000-product catalog</a> ·
+      <a href="/#features">Feature lab</a> ·
+      <a href="/docs/">Documentation</a>
+    </nav>
     <p>Demo fixtures — three products, not a benchmark.</p>
     <label for="search">Search products</label
     ><input id="search" searchivo type="search" aria-describedby="help" />

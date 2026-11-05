@@ -120,6 +120,7 @@ test("highlight preserves original UTF-16 ranges and returns no HTML", () => {
   expect(ranges[0]?.start).toBe(3);
   expect(highlight(text, "missing")).toEqual([]);
   expect(highlight("", "")).toEqual([]);
+  expect(highlight("Ａpple 😀 phone", "   !!! ")).toEqual([]);
   expect(highlight("ﬃ", "ffi")).toEqual([{ start: 0, end: 1 }]);
   expect(highlight("Ⓐ ½", "a 1 2")).toEqual([
     { start: 0, end: 1 },

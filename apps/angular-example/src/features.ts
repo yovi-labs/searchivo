@@ -75,7 +75,11 @@ class CatalogInputDirective {
     <p>
       Standalone Angular · Signals · OnPush · zoneless. Four synthetic fixtures.
     </p>
-    <a href="/">Minimal directive example</a>
+    <nav aria-label="Examples">
+      <a href="/">Minimal directive example</a> ·
+      <a href="/#catalog">10,000-product catalog</a> ·
+      <a href="/docs/">Documentation</a>
+    </nav>
     <section aria-label="Configuration">
       <label
         >Maximum price
@@ -291,6 +295,9 @@ class CatalogInputDirective {
       h1 {
         font-size: 42px;
       }
+      label {
+        flex-wrap: wrap;
+      }
       input,
       select {
         max-width: 100%;
@@ -304,6 +311,8 @@ export class Features {
   boost = 3;
   private documents = new Map(products.map((product) => [product.id, product]));
   engine = this.makeEngine();
+  private fuzzySearch = createFuzzySearch(this.engine);
+  private autocomplete = createAutocomplete(this.engine);
   fuzzy = false;
   mode = "local";
   category = "";
@@ -337,7 +346,7 @@ export class Features {
   constructor() {
     activeSource = async (request, signal) => {
       const expanded = this.fuzzy
-        ? createFuzzySearch(this.engine)(request.query).terms.join(" ")
+        ? this.fuzzySearch(request.query).terms.join(" ")
         : request.query;
       let hits;
       if (this.mode === "worker") {
@@ -390,6 +399,8 @@ export class Features {
   }
   rebuild() {
     this.engine = this.makeEngine();
+    this.fuzzySearch = createFuzzySearch(this.engine);
+    this.autocomplete = createAutocomplete(this.engine);
     this.run();
   }
   resetIndex() {
@@ -426,7 +437,7 @@ export class Features {
       [
         {
           label: "Dictionary",
-          suggest: async (query) => createAutocomplete(this.engine)(query),
+          suggest: async (query) => this.autocomplete(query),
         },
         {
           label: "Quick queries",
@@ -445,7 +456,7 @@ export class Features {
         this.query(),
         this.fuzzy
           ? {
-              expandedTerms: createFuzzySearch(this.engine)(this.query()).terms,
+              expandedTerms: this.fuzzySearch(this.query()).terms,
             }
           : {},
       ),

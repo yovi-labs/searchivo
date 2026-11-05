@@ -19,7 +19,7 @@ Use Node 24.22.1 and pnpm 11.28.9, matching CI. Run `pnpm install --frozen-lockf
 | Dependency audit                   | `pnpm audit --audit-level=low`              |
 | Engine / worker measurements       | `pnpm benchmark` / `pnpm benchmark:workers` |
 
-Build both the website and examples before running browser tests. On Linux, Playwright may require system dependencies; CI uses `playwright install --with-deps chromium`.
+Run `pnpm build:deploy` before browser tests to build libraries, Angular, workers, documentation and the combined test/deployment output. Browser tests use isolated ports 4183/4184 so they can run while the manual preview remains on 4173. `pnpm test:endpoints` verifies production function entries after building. On Linux, Playwright may require system dependencies; CI uses `playwright install --with-deps chromium`.
 
 ## Make a focused change
 

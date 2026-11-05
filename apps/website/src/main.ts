@@ -12,7 +12,11 @@ if (docsSearch) {
     const query = docsSearch.value.trim().toLocaleLowerCase();
     let count = 0;
     sections.forEach((section, index) => {
-      const matches = (section.textContent ?? "")
+      const matches = (
+        section.dataset["searchText"] ??
+        section.textContent ??
+        ""
+      )
         .toLocaleLowerCase()
         .includes(query);
       section.hidden = !matches;
@@ -25,6 +29,7 @@ if (docsSearch) {
     document.querySelector<HTMLElement>("#docs-empty")!.hidden = count !== 0;
   };
   docsSearch.addEventListener("input", filter);
+  filter();
   document
     .querySelectorAll<HTMLAnchorElement>('.learning-paths a[href^="#"]')
     .forEach((link) =>
@@ -33,26 +38,24 @@ if (docsSearch) {
         filter();
       }),
     );
-  document
-    .querySelectorAll<HTMLElement>(".guide-content pre")
-    .forEach((pre) => {
-      pre.tabIndex = 0;
-      pre.setAttribute("aria-label", "Code example");
-      const button = document.createElement("button");
-      button.type = "button";
-      button.className = "copy-doc-code";
-      button.textContent = "Copy code";
-      button.addEventListener("click", async () => {
-        try {
-          await navigator.clipboard.writeText(pre.textContent ?? "");
-          button.textContent = "Copied";
-        } catch {
-          button.textContent = "Select code to copy";
-        }
-      });
-      pre.before(button);
-    });
 }
+document.querySelectorAll<HTMLElement>("article pre").forEach((pre) => {
+  pre.tabIndex = 0;
+  pre.setAttribute("aria-label", "Code example");
+  const button = document.createElement("button");
+  button.type = "button";
+  button.className = "copy-doc-code";
+  button.textContent = "Copy code";
+  button.addEventListener("click", async () => {
+    try {
+      await navigator.clipboard.writeText(pre.textContent ?? "");
+      button.textContent = "Copied";
+    } catch {
+      button.textContent = "Select code to copy";
+    }
+  });
+  pre.before(button);
+});
 const input = document.querySelector<HTMLInputElement>("#home-query");
 if (input) {
   const engine = createSearchEngine(
@@ -88,9 +91,14 @@ if (input) {
   run();
 }
 if (document.querySelector("#playground"))
-  void import("@searchivo/playground").then((module) => {
-    const dispose = module.mountPlayground(products);
-    window.addEventListener("pagehide", (event) => {
-      if (!event.persisted) dispose();
+  void import("@searchivo/playground")
+    .then((module) => {
+      const dispose = module.mountPlayground(products);
+      window.addEventListener("pagehide", (event) => {
+        if (!event.persisted) dispose();
+      });
+    })
+    .catch(() => {
+      document.querySelector("#search-status")!.textContent =
+        "Playground could not load. Reload to try again.";
     });
-  });

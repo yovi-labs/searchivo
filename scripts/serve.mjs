@@ -1,30 +1,40 @@
 import { createServer } from "node:http";
 import { readFile } from "node:fs/promises";
 import { resolve, extname } from "node:path";
+import { Readable } from "node:stream";
 const root = resolve(process.argv[2] ?? "dist/angular-example/browser");
 createServer(async (req, res) => {
-  const pathname = decodeURIComponent(
-    new URL(req.url, "http://localhost").pathname,
-  );
-  if (pathname.startsWith("/api/") && root.endsWith("browser")) {
+  let pathname;
+  try {
+    pathname = decodeURIComponent(
+      new URL(req.url, "http://localhost").pathname,
+    );
+  } catch {
+    res.writeHead(400);
+    res.end("Invalid URL");
+    return;
+  }
+  if (
+    ["/api/search", "/api/invalid"].includes(pathname) &&
+    [resolve("dist/angular-example/browser"), resolve("dist/deploy")].includes(
+      root,
+    )
+  ) {
     try {
-      let body = "";
-      for await (const chunk of req) {
-        body += chunk;
-        if (body.length > 10000) throw new Error("Body too large");
-      }
-      const request = JSON.parse(body);
-      if (typeof request.query !== "string") throw new Error("Expected query");
-      const { fixtureSearch } =
-        await import("../dist/angular-example/feature-server.mjs");
-      res.setHeader("content-type", "application/json");
-      res.end(
-        JSON.stringify(
-          pathname === "/api/invalid"
-            ? { results: "invalid" }
-            : fixtureSearch(request.query),
-        ),
+      const { handleFixture } = await import("./fixture-handler.mjs");
+      const request = new Request(`http://localhost${pathname}`, {
+        method: req.method,
+        headers: req.headers,
+        ...(["GET", "HEAD"].includes(req.method)
+          ? {}
+          : { body: Readable.toWeb(req), duplex: "half" }),
+      });
+      const response = await handleFixture(
+        request,
+        pathname === "/api/invalid",
       );
+      res.writeHead(response.status, Object.fromEntries(response.headers));
+      res.end(await response.text());
     } catch {
       res.writeHead(400);
       res.end("Invalid fixture request");

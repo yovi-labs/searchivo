@@ -7,6 +7,9 @@
     "node": ">=24.15.0 <25"
   },
   "scripts": {
+    "build:deploy": "pnpm build && pnpm build:example && pnpm build:website && node scripts/build-deploy.mjs",
+    "benchmark:catalog": "node --expose-gc benchmarks/catalog.mjs",
+    "test:endpoints": "node --test tests/endpoints.test.mjs",
     "docs:links": "node scripts/check-repo-links.mjs",
     "preview:website": "node scripts/serve.mjs dist/website 4174",
     "build:website": "tsc -p apps/website/tsconfig.json && tsc -p apps/playground/tsconfig.worker.json && node scripts/build-site.mjs && node scripts/check-site.mjs",

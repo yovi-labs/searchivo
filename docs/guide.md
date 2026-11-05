@@ -1,6 +1,6 @@
 # Searchivo documentation
 
-Fast search. Simple API. Searchivo is a TypeScript-first local search toolkit with optional integrations. Packages are private rebuild candidates; they are not published to npm. Use the repository workspace or validated local tarballs. No production website is deployed.
+Fast search. Simple API. Searchivo is a TypeScript-first local search toolkit with optional integrations. Packages are private rebuild candidates; they are not published to npm. Use the repository workspace or validated local tarballs. The Angular app and documentation are hosted together on Netlify.
 
 ## Getting started
 
@@ -139,6 +139,6 @@ The trie replaced a measured memory-heavy deletion-key index. Both reports remai
 
 ## Migration and troubleshooting
 
-The rebuild is pre-1.0 and unpublished. APIs may change during candidate review; changes must be recorded in changelogs. Historical implementation reports do not describe this source. Public npm publication, releases and deployment require separate approval.
+The rebuild is pre-1.0 and unpublished. APIs may change during candidate review; changes must be recorded in changelogs. Historical implementation reports do not describe this source. Public npm publication and public releases require separate approval; this delivery authorizes deployment.
 
 No results: check the configured string fields, exact token semantics, accents and minimum length. Duplicate IDs: use upsert for replacement or fix the batch. Stale nested data: snapshots are shallow. Slow first fuzzy query: derived indexes rebuild after mutations; keep heavy indexing off the UI thread. Angular injection errors: provide the binding in the same scope as the directive. Worker silence: verify module URL, message protocol, runtime attachment and document guard. Remote validation errors: compare your response with the documented source shape. Unexpected rankings: inspect actual contributions with explainSearch.

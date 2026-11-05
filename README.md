@@ -19,6 +19,16 @@ A TypeScript-first search toolkit for applications that want control over their 
 - **Build your interface.** Structured highlights, suggestions, refinements and cancellable state. Angular adds scoped providers, Signals and a native input directive.
 - **Pay for what you import.** Core has zero runtime dependencies. Workers, HTTP adapters, diagnostics and themes are optional.
 
+## Live Angular demo
+
+[**Open the live Angular demo →**](https://searchivo.netlify.app/)
+
+- [10,000-product catalog](https://searchivo.netlify.app/#catalog): fictional retail data with real Searchivo BM25 search, typo recovery, filters, sorting and pagination.
+- [Feature lab](https://searchivo.netlify.app/#features): Angular Signals, IME, mutations, workers, working HTTP fixtures, cancellation and diagnostics.
+- [Developer documentation](https://searchivo.netlify.app/docs/): tutorials, concepts, recipes and the complete API reference.
+
+[Angular example source](apps/angular-example/src) · [Deployment arrangement](docs/deployment.md). One Netlify project serves the actual Angular application at the root and documentation under /docs/.
+
 ## Try the playground
 
 Requires Node **24.22.1** and pnpm **11.28.9**.
@@ -32,7 +42,7 @@ Requires Node **24.22.1** and pnpm **11.28.9**.
  pnpm preview:website
 ```
 
-Open [the playground](http://127.0.0.1:4174/playground/) or [documentation](http://127.0.0.1:4174/docs/) while the preview is running. These are local URLs; no public site is deployed. The preview serves a production build, so rebuild after edits.
+Open [the playground](http://127.0.0.1:4174/playground/) or [documentation](http://127.0.0.1:4174/docs/) while the preview is running. These URLs preview the same source as the public deployment. The preview serves a production build, so rebuild after edits.
 
 Explore exact matching, typo recovery, BM25 explanations and real worker ranking. Adjust filters, compare scores, inspect query tokens, view the dataset and copy the engine configuration. [Read the playground walkthrough →](apps/playground/README.md)
 
@@ -81,7 +91,7 @@ Core never imports Angular, RxJS, DOM or Node ambient types. [Architecture decis
 - [Integrate Angular](packages/angular/README.md): `createSearchivo(source)`, scoped providers and `<input searchivo>`.
 - [Understand execution](docs/guide.md#workers): local, worker and HTTP boundaries.
 
-The website renders the [versioned guide](docs/guide.md) and generated core declarations. Markdown remains the documentation source of truth.
+The website renders the [versioned learning library](docs/README.md) and generated declarations for every public package entry point. Markdown remains the documentation source of truth; complete TypeScript examples compile against packed packages, including Angular strict AOT.
 
 ## Quality and performance
 
@@ -95,12 +105,11 @@ Seeded **1k / 10k / 100k** benchmarks cover repeated vocabulary, high-cardinalit
 
 Explore every package in the [Angular feature lab](apps/angular-example/README.md): build with `pnpm build:example`, run `node scripts/serve.mjs`, then open [the local app](http://127.0.0.1:4173/#features).
 
-Manually test Searchivo in a shopping-style Angular app with [10,000 fictional products](http://127.0.0.1:4173/#catalog), live search, typo recovery, filters, sorting and pagination. It runs on the same preview server. [Catalog details](apps/angular-example/README.md).
+Manually test Searchivo in a shopping-style Angular app with [10,000 fictional products](https://searchivo.netlify.app/#catalog), live search, typo recovery, filters, sorting and pagination. It runs on the same preview server. [Catalog details](apps/angular-example/README.md).
 
 ```sh
 pnpm check
-pnpm build:example
-pnpm build:website
+pnpm build:deploy
 pnpm exec playwright install chromium
 pnpm test:browser
 ```
@@ -115,4 +124,4 @@ Known limits: snapshots are shallow; tokenization has no stemming; fuzzy expansi
 
 [Changelog](CHANGELOG.md) · [Private candidate preparation](docs/adr/0012-release-policy.md) · [Project tracker](https://app.notion.com/p/3f216fa3a42381689ffbd9169bea07ae)
 
-Public npm publication, public releases, merging to `main` and deployment require separate approval. Previously prepared candidate manifests remain tied to their recorded revisions; later documentation changes do not silently replace those artifacts.
+Public npm publication, public releases and merging to `main` require separate approval. Previously prepared candidate manifests remain tied to their recorded revisions; later documentation changes do not silently replace those artifacts.

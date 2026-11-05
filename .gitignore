@@ -8,3 +8,4 @@ artifacts/
 .angular/
 playwright-report/
 test-results/
+.netlify/

@@ -1,0 +1,18 @@
+[build]
+  command = "pnpm build:deploy"
+  publish = "dist/deploy"
+  functions = "netlify/functions"
+
+[build.environment]
+  NODE_VERSION = "24.22.1"
+  PNPM_VERSION = "11.28.9"
+
+[functions]
+  node_bundler = "esbuild"
+
+[[headers]]
+  for = "/*"
+  [headers.values]
+    X-Content-Type-Options = "nosniff"
+    Referrer-Policy = "strict-origin-when-cross-origin"
+    X-Frame-Options = "DENY"

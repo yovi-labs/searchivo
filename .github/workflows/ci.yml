@@ -15,6 +15,8 @@ jobs:
       - run: pnpm check
       - run: pnpm build:example
       - run: pnpm build:website
+      - run: node scripts/build-deploy.mjs
+      - run: pnpm test:endpoints
       - run: pnpm exec playwright install --with-deps chromium
       - run: pnpm test:browser
       - run: pnpm audit --audit-level=low

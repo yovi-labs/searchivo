@@ -1,6 +1,38 @@
 import { expect, test } from "@playwright/test";
 import AxeBuilder from "@axe-core/playwright";
-test.use({ baseURL: "http://127.0.0.1:4174" });
+test.use({
+  baseURL: process.env["SEARCHIVO_DOCS_URL"] ?? "http://127.0.0.1:4184",
+});
+test("playground waits for lazy handlers and reports a failed module load", async ({
+  page,
+}) => {
+  let release!: () => void;
+  let fail = false;
+  const held = new Promise<void>((resolve) => {
+    release = resolve;
+  });
+  await page.route("**/src-*.js", async (route) => {
+    if (fail) {
+      await route.abort();
+      return;
+    }
+    await held;
+    await route.continue();
+  });
+  await page.goto("/playground/", { waitUntil: "domcontentloaded" });
+  const preset = page.getByRole("button", { name: /Recover a misspelling/ });
+  await expect(preset).toBeDisabled();
+  release();
+  await expect(preset).toBeEnabled();
+  await preset.click();
+  await expect(page.locator("#query")).toHaveValue("iphnoe");
+  fail = true;
+  await page.reload();
+  await expect(page.locator("#search-status")).toHaveText(
+    "Playground could not load. Reload to try again.",
+  );
+  await expect(page.locator("#query")).toBeDisabled();
+});
 test("guided experiments reset controls and copy real configuration", async ({
   page,
   context,
@@ -56,13 +88,14 @@ test("documentation topic search, empty state, learning paths and copy", async (
   await expect(page.locator("#docs-empty")).toBeVisible();
   await expect(page.locator("[data-doc-section]:visible")).toHaveCount(0);
   await search.fill("Abort abandons");
-  await expect(page.locator("[data-doc-section]:visible")).toHaveCount(1);
-  await expect(page.locator("[data-doc-section]:visible h2")).toHaveText(
+  await expect(page.locator("[data-doc-section]:visible h2")).toContainText([
     "Workers",
-  );
+  ]);
   await page.getByRole("link", { name: /Your first search/ }).click();
   await expect(search).toHaveValue("");
-  await expect(page.locator("[data-doc-section]:visible")).toHaveCount(13);
+  expect(
+    await page.locator("[data-doc-section]:visible").count(),
+  ).toBeGreaterThan(13);
   await page
     .getByRole("button", { name: "Copy code", exact: true })
     .first()
@@ -79,7 +112,7 @@ test("documentation topic search, empty state, learning paths and copy", async (
 test("homepage real search, accessibility and responsive layout", async ({
   page,
 }) => {
-  await page.goto("/");
+  await page.goto(process.env["SEARCHIVO_DOCS_URL"] ? "/website/" : "/");
   await page.getByRole("searchbox").fill("framework");
   await expect(page.locator("#home-results")).toContainText("Framework");
   expect((await new AxeBuilder({ page }).analyze()).violations).toEqual([]);

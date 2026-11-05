@@ -404,6 +404,7 @@ export function mountPlayground(documents: readonly Product[]): () => void {
   input.addEventListener("compositionend", compositionEnd);
   element("previous").addEventListener("click", previous);
   element("next").addEventListener("click", next);
+  element<HTMLFieldSetElement>("playground-ready").disabled = false;
   search();
   return () => {
     unsubscribe();

@@ -1,4 +1,5 @@
 import { playgroundPage } from "./site-playground.mjs";
+import { documentation, renderDocumentation, publicApi } from "./site-docs.mjs";
 import { build } from "esbuild";
 import { marked } from "marked";
 import {
@@ -7,9 +8,11 @@ import {
   mkdirSync,
   readdirSync,
   copyFileSync,
+  rmSync,
 } from "node:fs";
 import { join } from "node:path";
 const out = "dist/website";
+rmSync(out, { recursive: true, force: true });
 mkdirSync(out, { recursive: true });
 const escape = (text) =>
   String(text)
@@ -95,26 +98,50 @@ const benchmarks = `${pageTitle("Benchmarks", "Evidence, not promises.", "Seeded
   .join(
     "",
   )}</ul><h2>What is measured</h2><p>Initialization, full/incremental indexing, exact and BM25 query latency, fuzzy/suggestion cold and warm costs, refinement work and heap deltas. Separate worker reports record startup, clone, acknowledgment, round trips and worker heap samples.</p><p>Run <code>pnpm benchmark</code> or <code>pnpm benchmark:workers</code>. No historical results are reused. Lighthouse is not a field Core Web Vitals measurement.</p></article>`;
-const apiFiles = [
-  "index",
-  "types",
-  "bm25",
-  "fuzzy",
-  "highlight",
-  "refinements",
-  "source",
-  "state",
-  "suggestions",
-  "explain",
-];
-const api = `${pageTitle("API reference", "Typed at every boundary.", "Generated declarations from the current built packages. Optional features use explicit entry points.")}<article>${apiFiles.map((name) => `<h2>@searchivo/core${name === "index" || name === "types" ? "" : `/${name}`}</h2><pre><code>${escape(readFileSync(`packages/core/dist/${name}.d.ts`, "utf8"))}</code></pre>`).join("")}<h2>Integrations</h2><p>See the guides for Angular, workers, HTTP adapters, DevTools and optional themes. Core has no Angular, RxJS, DOM or Node runtime dependency.</p></article>`;
+const apiEntries = publicApi();
+const inventory = readFileSync("docs/public-api.md", "utf8");
+for (const entry of apiEntries)
+  for (const symbol of entry.exports)
+    if (
+      !inventory.includes("`" + symbol + "`") &&
+      !inventory.includes("`" + symbol + "<")
+    )
+      throw new Error(`Undocumented public export ${entry.entry}: ${symbol}`);
+const api = `${pageTitle("API reference", "Every public entry point.", "Export names and declarations generated from all built package manifests, including integration types.")}<article>${apiEntries.map((entry) => `<h2>${escape(entry.entry)}</h2><p>Exports: ${escape(entry.exports.join(", ") || "style asset")}</p><pre><code>${escape(entry.text)}</code></pre>`).join("")}</article>`;
+const documentationNav = documentation
+  .map(
+    (page) =>
+      `<a href="${page.url}"><small>${page.group}</small> ${escape(page.title)}</a>`,
+  )
+  .join("");
+const documentationIndex = `<section aria-label="Documentation library"><h2>Tutorials, concepts, recipes and reference</h2><div class="docs-library">${documentationNav}</div></section>`;
+const searchablePages = documentation.filter((page) => page.id !== "guide");
+const expandedDocs = docs
+  .replace(
+    '<div class="docs-grid">',
+    `${documentationIndex}<div class="docs-grid">`,
+  )
+  .replace(
+    '</nav><a class="source-link"',
+    `${searchablePages.map((page) => `<a href="#topic-${page.id}">${escape(page.title)}</a>`).join("")}</nav><a class="source-link"`,
+  )
+  .replace(
+    '<p id="docs-empty"',
+    `${searchablePages.map((page) => `<section data-doc-section data-search-text="${escape(page.text)}"><h2 id="topic-${page.id}">${escape(page.title)}</h2><p>${page.group} · <a href="${page.url}">Read ${escape(page.title)}</a></p></section>`).join("")}<p id="docs-empty"`,
+  );
+const liveExamples = `<section aria-label="Live Angular examples"><h2>Live Angular demo</h2><p><a class="button primary" href="https://searchivo.netlify.app/">Minimal Angular integration</a> <a class="button" href="https://searchivo.netlify.app/#catalog">10,000-product catalog</a> <a class="button" href="https://searchivo.netlify.app/#features">Feature lab</a></p><p>Deterministic fictional products. Searchivo performs actual retrieval and refinements; worker and HTTP modes exercise real transports.</p><a href="https://github.com/yovi-labs/searchivo/tree/develop/apps/angular-example/src">Browse example source</a></section>`;
 for (const [path, title, content] of [
   ["/", "Home", home],
-  ["/docs/", "Docs", docs],
+  ["/docs/", "Docs", expandedDocs],
   ["/playground/", "Playground", playground],
-  ["/examples/", "Examples", examples],
+  ["/examples/", "Examples", liveExamples + examples],
   ["/benchmarks/", "Benchmarks", benchmarks],
   ["/api/", "API", api],
+  ...documentation.map((page) => [
+    page.url,
+    page.title,
+    `${pageTitle(page.group, escape(page.title), "Searchivo developer documentation")}<div class="docs-grid"><aside class="docs-sidebar"><a href="/docs/">Search all documentation</a><nav class="docs-nav" aria-label="Documentation library">${documentationNav}</nav><a class="source-link" href="https://github.com/yovi-labs/searchivo/blob/develop/docs/${page.id}.md">View source</a></aside><article class="guide-content">${renderDocumentation(page.text)}</article></div>`,
+  ]),
 ]) {
   const directory = join(out, path);
   mkdirSync(directory, { recursive: true });
@@ -148,5 +175,5 @@ writeFileSync(
   JSON.stringify(result.metafile, null, 2),
 );
 console.log(
-  "Built six static website pages, lazy real-package playground and module worker.",
+  "Built searchable documentation, complete public API and static website pages, lazy real-package playground and module worker.",
 );

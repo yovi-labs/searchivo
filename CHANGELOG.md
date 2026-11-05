@@ -2,6 +2,11 @@
 
 ## Unreleased
 
+- Deliver the actual Angular app and searchable documentation together on Netlify, with public example navigation and bounded working HTTP fixtures. Add complete public-export declarations, tutorials, recipes and operational references; validate all complete Markdown TypeScript examples, including Angular strict AOT.
+- Keep playground controls disabled until lazy initialization attaches input handlers, and show a recoverable load error when the module fails. Clean generated website output before rebuilding to exclude obsolete chunks.
+- Skip grapheme mapping for empty highlight queries; the 24-name catalog benchmark median falls from 0.2851 to 0.0034 ms on the recorded machine. Preserve public APIs and reuse feature-lab fuzzy/autocomplete derived indexes between queries.
+- Add shared endpoint validation and deployment/browser regressions. No npm publication, public release, package version change or merge to main.
+
 - Add an Angular shopping catalog with 10,000 deterministic fictional products, BM25 retrieval, fallback typo recovery, filters, sorting, pagination and browser verification for manual integration testing.
 
 - Fix Angular feature-lab query/refinement synchronization, pending-search cancellation, IME composition and document preservation across ranking changes. Add browser regressions for all five review findings and reusable `createDebouncer.cancel()`.

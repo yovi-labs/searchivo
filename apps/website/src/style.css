@@ -787,6 +787,31 @@ summary {
   color: #ff98ce;
   font-size: 12px;
 }
+.docs-library {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(240px, 1fr));
+  gap: 12px;
+  margin: 24px 0;
+}
+#playground-ready {
+  border: 0;
+  padding: 0;
+  margin: 0;
+  min-width: 0;
+}
+.docs-library a {
+  border: 1px solid #34435b;
+  padding: 16px;
+}
+.docs-library small {
+  display: block;
+  color: #b6c3d5;
+}
+.guide-content table {
+  display: block;
+  overflow-x: auto;
+  max-width: 100%;
+}
 .guide-content section {
   border-bottom: 1px solid #29364d;
   padding: 0 0 28px;
