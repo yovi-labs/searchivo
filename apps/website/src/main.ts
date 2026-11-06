@@ -62,6 +62,17 @@ if (docsSearch) {
       }),
     );
 }
+document
+  .querySelectorAll<HTMLElement>(".guide-content table")
+  .forEach((table) => {
+    // Tables can overflow at different widths across platforms and font metrics.
+    table.tabIndex = 0;
+    let heading = table.previousElementSibling;
+    while (heading && !heading.matches("h2[id], h3[id]"))
+      heading = heading.previousElementSibling;
+    if (heading) table.setAttribute("aria-labelledby", heading.id);
+  });
+
 document.querySelectorAll<HTMLElement>("article pre").forEach((pre) => {
   pre.tabIndex = 0;
   pre.setAttribute("aria-label", "Code example");

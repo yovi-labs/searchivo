@@ -63,6 +63,12 @@ test("npm onboarding leads into a readable Angular integration guide", async ({
     page.getByRole("navigation", { name: "Documentation library" }),
   ).toBeVisible();
   await menu.click();
+  const steps = page.getByRole("table", { name: "Scope, Signals and cleanup" });
+  await steps.focus();
+  await expect(steps).toBeFocused();
+  await steps.press("ArrowRight");
+  await expect(steps).toHaveAttribute("tabindex", "0");
+  await page.evaluate(() => window.scrollTo(0, 0));
   expect(
     await page.evaluate(() => document.body.scrollWidth <= innerWidth),
   ).toBe(true);
