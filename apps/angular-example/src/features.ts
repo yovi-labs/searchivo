@@ -76,9 +76,9 @@ class CatalogInputDirective {
       Standalone Angular · Signals · OnPush · zoneless. Four synthetic fixtures.
     </p>
     <nav aria-label="Examples">
-      <a href="/">Minimal directive example</a> ·
+      <a href="/#minimal">Minimal directive example</a> ·
       <a href="/#catalog">10,000-product catalog</a> ·
-      <a href="/docs/">Documentation</a>
+      <a href="https://searchivo.netlify.app/docs/">Documentation</a>
     </nav>
     <section aria-label="Configuration">
       <label

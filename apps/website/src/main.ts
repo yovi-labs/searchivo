@@ -1,5 +1,11 @@
 import { createSearchEngine } from "@searchivo/core";
 import { products } from "./fixtures.js";
+// Preserve old public example bookmarks after moving the application to its own site.
+if (
+  location.pathname === "/" &&
+  ["#catalog", "#features", "#minimal"].includes(location.hash)
+)
+  location.replace(`https://searchivo-market.netlify.app/${location.hash}`);
 const docsSearch = document.querySelector<HTMLInputElement>("#docs-search");
 if (docsSearch) {
   const sections = [

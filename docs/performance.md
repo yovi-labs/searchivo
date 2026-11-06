@@ -1,6 +1,6 @@
 # Performance, complexity and measurements
 
-Measure your data and complete interface before optimizing. [Benchmark source](https://github.com/yovi-labs/searchivo/tree/develop/benchmarks) · [raw reports](https://searchivo.netlify.app/benchmarks/) · [live catalog](https://searchivo.netlify.app/#catalog).
+Measure your data and complete interface before optimizing. [Benchmark source](https://github.com/yovi-labs/searchivo/tree/develop/benchmarks) · [raw reports](https://searchivo.netlify.app/benchmarks/) · [live catalog](https://searchivo-market.netlify.app/).
 
 ## Catalog measurements
 

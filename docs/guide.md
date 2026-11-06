@@ -1,6 +1,6 @@
 # Searchivo documentation
 
-Fast search. Simple API. Searchivo is a TypeScript-first local search toolkit with optional integrations. Packages are private rebuild candidates; they are not published to npm. Use the repository workspace or validated local tarballs. The Angular app and documentation are hosted together on Netlify.
+Fast search. Simple API. Searchivo is a TypeScript-first local search toolkit with optional integrations. Version 0.1.0 is prepared for npm publication. Until the owner publishes it, use the workspace or validated release tarballs. The official website and the Angular Market application use separate Netlify projects.
 
 ## Getting started
 
@@ -8,7 +8,7 @@ Fast search. Simple API. Searchivo is a TypeScript-first local search toolkit wi
 
 Use Node 24.22.1 and pnpm 11.28.9. Clone the repository's `develop` branch, then run `pnpm install --frozen-lockfile` and `pnpm build`. For the website, run `pnpm build:website` followed by `pnpm preview:website`. Open `/playground/` on the local preview to explore the same engine interactively.
 
-Packages are not on public npm. In a separate consumer, install the exact tarballs from a validated private candidate together; Angular consumers also install its tested peers. Do not substitute an unverified registry package with the same name.
+Until publication, install the validated release tarballs in a separate consumer. After publication use npm install @searchivo/core@0.1.0 and add optional packages as needed; Angular consumers also install the documented peers. Keep package versions synchronized.
 
 ### Your first query
 
@@ -139,6 +139,6 @@ The trie replaced a measured memory-heavy deletion-key index. Both reports remai
 
 ## Migration and troubleshooting
 
-The rebuild is pre-1.0 and unpublished. APIs may change during candidate review; changes must be recorded in changelogs. Historical implementation reports do not describe this source. Public npm publication and public releases require separate approval; this delivery authorizes deployment.
+Version 0.1.0 is prepared for publication and remains pre-1.0. Record API changes and migration guidance in the changelog. The owner publishes validated tarballs using the publishing guide; build/deploy commands never publish packages.
 
 No results: check the configured string fields, exact token semantics, accents and minimum length. Duplicate IDs: use upsert for replacement or fix the batch. Stale nested data: snapshots are shallow. Slow first fuzzy query: derived indexes rebuild after mutations; keep heavy indexing off the UI thread. Angular injection errors: provide the binding in the same scope as the directive. Worker silence: verify module URL, message protocol, runtime attachment and document guard. Remote validation errors: compare your response with the documented source shape. Unexpected rankings: inspect actual contributions with explainSearch.

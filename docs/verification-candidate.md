@@ -1,5 +1,7 @@
 # Private candidate verification — 2026-10-29
 
+Historical verification record. Current deployment and npm preparation are documented in [deployment](deployment.md) and [publishing](publishing.md); measurements and revisions below retain their original scope.
+
 This evidence concerns the new rebuild, not historical code. Website milestone `f100c30fcba028b5d4b8385ae51b8618f14f595f` passed [GitHub CI](https://github.com/yovi-labs/searchivo/actions/runs/40882380950). Release hardening source is `00981dd303b4d2bba8e3a0b408d0a84ae6b7cea4`; candidate manifests identify their exact later packaging revision.
 
 ## Checks executed

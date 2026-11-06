@@ -9,7 +9,7 @@
   "scripts": {
     "build:deploy": "pnpm build && pnpm build:example && pnpm build:website && node scripts/build-deploy.mjs",
     "benchmark:catalog": "node --expose-gc benchmarks/catalog.mjs",
-    "test:endpoints": "node --test tests/endpoints.test.mjs",
+    "test:endpoints": "node --test tests/endpoints.test.mjs tests/deploy.test.mjs",
     "docs:links": "node scripts/check-repo-links.mjs",
     "preview:website": "node scripts/serve.mjs dist/website 4174",
     "build:website": "tsc -p apps/website/tsconfig.json && tsc -p apps/playground/tsconfig.worker.json && node scripts/build-site.mjs && node scripts/check-site.mjs",
@@ -26,7 +26,11 @@
     "validate:package": "node scripts/validate-package.mjs",
     "benchmark": "node --expose-gc benchmarks/run.mjs",
     "bundle": "node scripts/bundle.mjs",
-    "check": "pnpm format:check && pnpm lint && pnpm build && pnpm test && pnpm boundaries && pnpm validate:package && pnpm bundle && pnpm docs:links"
+    "check": "pnpm format:check && pnpm lint && pnpm build && pnpm test && pnpm boundaries && pnpm validate:package && pnpm bundle && pnpm docs:links",
+    "build:official": "pnpm build && pnpm build:website && node scripts/build-deploy.mjs official",
+    "build:market": "pnpm build && pnpm build:example && node scripts/build-deploy.mjs example",
+    "release:check": "pnpm check && pnpm build:deploy && pnpm test:endpoints && pnpm test:browser && pnpm audit --audit-level=low",
+    "release:prepare": "node scripts/prepare-candidate.mjs"
   },
   "devDependencies": {
     "@angular/build": "22.2.3",

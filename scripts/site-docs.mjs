@@ -16,6 +16,7 @@ export const documentation = [
   ["Operations", "performance", "Performance and complexity"],
   ["Operations", "security", "Security and resource limits"],
   ["Operations", "deployment", "Deployment and troubleshooting"],
+  ["Operations", "publishing", "Publish the npm packages"],
 ].map(([group, id, title]) => ({
   group,
   id,

@@ -24,7 +24,7 @@ const search = createSearchivo(localSource(engine));
     <nav aria-label="Examples">
       <a href="/#catalog">10,000-product catalog</a> ·
       <a href="/#features">Feature lab</a> ·
-      <a href="/docs/">Documentation</a>
+      <a href="https://searchivo.netlify.app/docs/">Documentation</a>
     </nav>
     <p>Demo fixtures — three products, not a benchmark.</p>
     <label for="search">Search products</label
@@ -45,11 +45,11 @@ class App {
   readonly search = search.inject();
 }
 const root =
-  location.hash === "#catalog"
-    ? (await import("./catalog.js")).Catalog
+  location.hash === "#minimal"
+    ? App
     : location.hash === "#features"
       ? (await import("./features.js")).Features
-      : App;
+      : (await import("./catalog.js")).Catalog;
 // Each demo bootstraps its own root; changing demo hashes starts a fresh scope.
 window.addEventListener("hashchange", () => location.reload());
 void bootstrapApplication(root, {

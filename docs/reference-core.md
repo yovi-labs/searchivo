@@ -1,6 +1,6 @@
 # Core API reference
 
-Use the [first-search tutorial](tutorial.md) for installation and a complete working index. This reference covers retrieval and ranking. The [generated API reference](https://searchivo.netlify.app/api/) contains exact current declarations, including all exported types. [Source](https://github.com/yovi-labs/searchivo/tree/develop/packages/core/src) · [live feature lab](https://searchivo.netlify.app/#features).
+Use the [first-search tutorial](tutorial.md) for installation and a complete working index. This reference covers retrieval and ranking. The [generated API reference](https://searchivo.netlify.app/api/) contains exact current declarations, including all exported types. [Source](https://github.com/yovi-labs/searchivo/tree/develop/packages/core/src) · [live feature lab](https://searchivo-market.netlify.app/#features).
 
 ## Engine and tokenization
 

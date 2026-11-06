@@ -1,5 +1,7 @@
 # Private candidate release policy
 
+Historical policy for the unpublished rebuild candidate. The 0.1.0 publication preparation now follows [ADR-0016](0016-public-packages-and-separate-sites.md) and the [publishing guide](../publishing.md). Original candidate artifacts retain their versions and hashes.
+
 All six packages use the synchronized semantic prerelease version `0.1.0-rebuild.0`. A single root changelog is the justified equivalent of Changesets for this initial, unpublished candidate: there are no independent stable release trains or automatic publication workflows. Each future candidate must update that changelog and all affected versions together. Before 1.0, breaking API changes require a minor version and explicit migration notes; stable releases follow semantic versioning.
 
 MIT is selected for the requested open-source toolkit. Package manifests identify the repository and ship the license. `private: true` remains on every package. No publishing or deployment command is part of candidate preparation.

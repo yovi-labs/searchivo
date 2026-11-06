@@ -1,6 +1,6 @@
 # Contributing to Searchivo
 
-Thanks for helping make search simpler to integrate and easier to understand. The active implementation branch is `develop`. Packages are currently private, pre-1.0 candidates.
+Thanks for helping make search simpler to integrate and easier to understand. The active implementation branch is `develop`. Six public packages are prepared at 0.1.0; the workspace and applications remain private.
 
 ## Set up the workspace
 
@@ -19,7 +19,7 @@ Use Node 24.22.1 and pnpm 11.28.9, matching CI. Run `pnpm install --frozen-lockf
 | Dependency audit                   | `pnpm audit --audit-level=low`              |
 | Engine / worker measurements       | `pnpm benchmark` / `pnpm benchmark:workers` |
 
-Run `pnpm build:deploy` before browser tests to build libraries, Angular, workers, documentation and the combined test/deployment output. Browser tests use isolated ports 4183/4184 so they can run while the manual preview remains on 4173. `pnpm test:endpoints` verifies production function entries after building. On Linux, Playwright may require system dependencies; CI uses `playwright install --with-deps chromium`.
+Run `pnpm build:deploy` before browser tests to build libraries, Angular, workers, documentation and the separate official/application outputs. Browser tests use isolated ports 4183/4184 so they can run while the manual preview remains on 4173. `pnpm test:endpoints` verifies production function entries after building. On Linux, Playwright may require system dependencies; CI uses `playwright install --with-deps chromium`.
 
 ## Make a focused change
 
@@ -45,4 +45,4 @@ Be respectful and specific in discussions. Critique the work, explain your reaso
 
 ## Release boundary
 
-Use the [private release policy](docs/adr/0012-release-policy.md). Candidate preparation is separate from npm publication, a public release, deployment or a merge to `main`. Those operations require owner approval. Never republish an old version with changed package contents.
+Use the [publishing guide](docs/publishing.md). Release preparation validates exact public tarballs but does not publish. The owner performs npm publication with their own account and scope rights. Public releases and main merges require separate approval. Never reuse a published version for different contents.

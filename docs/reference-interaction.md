@@ -1,6 +1,6 @@
 # Refinements, suggestions and state API
 
-These optional core entry points compose with the engine. [Live catalog](https://searchivo.netlify.app/#catalog) · [feature lab](https://searchivo.netlify.app/#features) · [source](https://github.com/yovi-labs/searchivo/tree/develop/packages/core/src) · [generated declarations](https://searchivo.netlify.app/api/).
+These optional core entry points compose with the engine. [Live catalog](https://searchivo-market.netlify.app/) · [feature lab](https://searchivo-market.netlify.app/#features) · [source](https://github.com/yovi-labs/searchivo/tree/develop/packages/core/src) · [generated declarations](https://searchivo.netlify.app/api/).
 
 ## Filters, facets, sorting and pagination
 

@@ -1,19 +1,19 @@
 # Tutorial: build your first search
 
-Use this tutorial for a small typed local index. Continue with the [Angular recipe](angular.md) when you need a native input and reactive results. The [live Angular demo](https://searchivo.netlify.app/), [catalog](https://searchivo.netlify.app/#catalog) and [feature lab](https://searchivo.netlify.app/#features) use the same packages. Every catalog product, price, rating, illustration and stock value is fictional.
+Use this tutorial for a small typed local index. Continue with the [Angular recipe](angular.md) when you need a native input and reactive results. The [live Angular application](https://searchivo-market.netlify.app/), [catalog](https://searchivo-market.netlify.app/) and [feature lab](https://searchivo-market.netlify.app/#features) use the same packages. Every catalog product, price, rating, illustration and stock value is fictional.
 
 ## Install the workspace
 
-Searchivo `0.1.0-rebuild.0` packages are private and **not published on npm**. Clone [the repository](https://github.com/yovi-labs/searchivo/tree/develop), use Node 24.22.1 and pnpm 11.28.9, and run:
+Searchivo `0.1.0` is prepared for npm publication. Until the owner publishes the release, use the workspace or validated release tarballs. Clone [the repository](https://github.com/yovi-labs/searchivo/tree/develop), use Node 24.22.1 and pnpm 11.28.9, and run:
 
 ```sh
 pnpm install --frozen-lockfile
 pnpm build
 pnpm build:deploy
-node scripts/serve.mjs dist/deploy 4173
+node scripts/serve.mjs dist/deploy/example 4173
 ```
 
-The preview now serves the Angular app at port 4173, docs at `/docs/`, and the fixture HTTP endpoints at `/api/search` and `/api/invalid`. This is a production-output preview: rebuild after source edits. For another repository, install the six validated private candidate tarballs you actually need, using their absolute paths with `pnpm add /path/to/searchivo-core-0.1.0-rebuild.0.tgz`. Keep matching package versions; do not run a public registry install for these names. Angular requires its tested peer versions; see the [reference](reference-angular.md).
+This preview serves Searchivo Market and its HTTP fixtures at port 4173. Run pnpm preview:website separately for landing/docs/playground at port 4174. Rebuild after edits. For another repository, install the validated tarballs you need with pnpm add /absolute/path/searchivo-core-0.1.0.tgz. After publication, npm install @searchivo/core@0.1.0 is the registry equivalent. Angular peers are listed in the [reference](reference-angular.md).
 
 ## Index, query and update
 

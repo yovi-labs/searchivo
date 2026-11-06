@@ -7,3 +7,9 @@ Return `{ results: [{ id, document, score }], total, facets, metadata? }`. Each 
 Timeout defaults to 10 seconds. Both cancellation and timeout reject even if an injected fetch ignores AbortSignal. Timers and abort listeners are cleaned up. Wrap fetch to supply application authentication; no credentials are collected or attached implicitly. Use the generation-safe state controller to prevent stale responses from overwriting new results.
 
 The packed-package validation starts a real local HTTP server and exercises this source. Unit tests cover malformed data, HTTP/JSON failures and noncooperative cancellation. This is an adapter; no production search server is included.
+
+## Installation and reference
+
+After version 0.1.0 is published, install with `npm install @searchivo/adapters@0.1.0 @searchivo/core@0.1.0`. Before publication, use the validated release tarball. The workspace/application builds do not publish to npm.
+
+[Full API reference and examples](https://searchivo.netlify.app/docs/reference-integrations/) · [Official website](https://searchivo.netlify.app/) · [Working Angular application](https://searchivo-market.netlify.app/) · [Publishing guide](https://searchivo.netlify.app/docs/publishing/)

@@ -112,7 +112,7 @@ test("documentation topic search, empty state, learning paths and copy", async (
 test("homepage real search, accessibility and responsive layout", async ({
   page,
 }) => {
-  await page.goto(process.env["SEARCHIVO_DOCS_URL"] ? "/website/" : "/");
+  await page.goto("/");
   await page.getByRole("searchbox").fill("framework");
   await expect(page.locator("#home-results")).toContainText("Framework");
   expect((await new AxeBuilder({ page }).analyze()).violations).toEqual([]);

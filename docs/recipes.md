@@ -1,6 +1,6 @@
 # Recipes: asynchronous search and HTTP
 
-Use a `SearchSource` to separate retrieval from user interaction. These examples are complete executable modules checked against packed packages. [State reference](reference-interaction.md) · [HTTP reference](reference-integrations.md) · [live feature lab](https://searchivo.netlify.app/#features).
+Use a `SearchSource` to separate retrieval from user interaction. These examples are complete executable modules checked against packed packages. [State reference](reference-interaction.md) · [HTTP reference](reference-integrations.md) · [live feature lab](https://searchivo-market.netlify.app/#features).
 
 ## Debounce and observable state
 
@@ -70,7 +70,7 @@ const envelope = {
 };
 const checked = parseSearchResponse(envelope, isProduct);
 const source = createHttpSource({
-  endpoint: "https://searchivo.netlify.app/api/search",
+  endpoint: "https://searchivo-market.netlify.app/api/search",
   isDocument: isProduct,
   timeoutMs: 5000,
   fetch: async () => Response.json(envelope),

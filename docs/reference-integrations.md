@@ -1,6 +1,6 @@
 # Workers, adapters and diagnostics API
 
-All integrations are optional. Core remains framework-independent. [Generated declarations](https://searchivo.netlify.app/api/) list all types and signatures; [public inventory](public-api.md) maps the entry points. The [feature lab](https://searchivo.netlify.app/#features) exercises actual network and worker transport.
+All integrations are optional. Core remains framework-independent. [Generated declarations](https://searchivo.netlify.app/api/) list all types and signatures; [public inventory](public-api.md) maps the entry points. The [feature lab](https://searchivo-market.netlify.app/#features) exercises actual network and worker transport.
 
 ## Worker client and transport
 

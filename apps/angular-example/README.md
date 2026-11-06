@@ -1,4 +1,4 @@
-# Angular feature lab
+# Searchivo Market and Angular integration examples
 
 A standalone Angular app integrating every Searchivo package with Signals, OnPush and zoneless change detection.
 
@@ -9,9 +9,9 @@ pnpm build:example
 node scripts/serve.mjs
 ```
 
-[Live minimal demo](https://searchivo.netlify.app/) · [Live feature lab](https://searchivo.netlify.app/#features) · [Live catalog](https://searchivo.netlify.app/#catalog) · [Docs](https://searchivo.netlify.app/docs/)
+[Live minimal demo](https://searchivo-market.netlify.app/#minimal) · [Live feature lab](https://searchivo-market.netlify.app/#features) · [Live catalog](https://searchivo-market.netlify.app/) · [Docs](https://searchivo.netlify.app/docs/)
 
-Open [the local feature lab](http://127.0.0.1:4173/#features). The [minimal directive example](http://127.0.0.1:4173/) remains available.
+Open [the local feature lab](http://127.0.0.1:4173/#features). The [minimal directive example](http://127.0.0.1:4173/#minimal) remains available.
 
 For hands-on shopping-style search, open [the 10,000-product catalog](http://127.0.0.1:4173/#catalog). It generates deterministic fictional products across eight categories, indexes them with Searchivo BM25, and uses the Angular binding for query state. Try `coffee`, `headphnoes` (typo recovery), `ergonomic chair`, `midnight`, or exact SKU `SKU00001`. Search matches any word; category, brand, maximum price and stock filters narrow results. Sort by price or rating and page through 24 products at a time. Empty queries browse the full collection. Typo recovery runs only when exact retrieval has no hits. Timings show this browser's index construction and retrieval/refinement duration; they are not benchmark claims. Product illustrations, prices, stock and ratings are synthetic; no remote data service or checkout is involved.
 
@@ -37,3 +37,9 @@ The isolated strict-AOT tarball consumer is [examples/angular.ts](../../examples
 Both search inputs share one query Signal and the same refinement pipeline. The catalog adds a 100 ms debounce; the bound input and programmatic button search immediately. Both inputs use the native directive's IME composition handling. Cancel stops pending debounce, suggestions and the active request, and subsequent typing starts a new search.
 
 Ranking and name-boost changes rebuild the local index from its current documents, preserving additions, updates, removals and an empty index. Only Reset index restores the original fixtures. Add document inserts fixture ID 5 when absent, including after Clear index, and leaves an existing ID unchanged.
+
+## Product-discovery workflow
+
+The root opens the Market catalog. Save up to 100 products, filter to saved products, inspect details in a native keyboard-accessible dialog, and return to search. The saved list persists in localStorage when available and works in memory when storage fails. Stored IDs are validated; corrupt storage is ignored. No account, checkout or backend purchase flow is implied. All products and merchandising details are fictional.
+
+The official Searchivo website lives in a different Netlify project. This application consumes the same workspace packages as the validated npm tarballs. See its netlify.toml and the root deployment guide for separate output directories.

@@ -16,9 +16,10 @@ createServer(async (req, res) => {
   }
   if (
     ["/api/search", "/api/invalid"].includes(pathname) &&
-    [resolve("dist/angular-example/browser"), resolve("dist/deploy")].includes(
-      root,
-    )
+    [
+      resolve("dist/angular-example/browser"),
+      resolve("dist/deploy/example"),
+    ].includes(root)
   ) {
     try {
       const { handleFixture } = await import("./fixture-handler.mjs");

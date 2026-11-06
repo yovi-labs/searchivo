@@ -1,5 +1,7 @@
 # Angular and documentation delivery verification
 
+Historical verification record. Current deployment and npm preparation are documented in [deployment](deployment.md) and [publishing](publishing.md); measurements and revisions below retain their original scope.
+
 This delivery uses Netlify at the owner's request. One project serves the actual Angular app at [the root](https://searchivo.netlify.app/), [catalog](https://searchivo.netlify.app/#catalog), [feature lab](https://searchivo.netlify.app/#features) and [documentation](https://searchivo.netlify.app/docs/). The original toolkit homepage is at `/website/`. This is a source-built manual deployment; Git pushes run quality CI but do not currently auto-deploy Netlify.
 
 ## Evidence and scope

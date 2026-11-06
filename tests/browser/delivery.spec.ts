@@ -11,7 +11,7 @@ test("Angular examples navigate and refresh with working assets and endpoints", 
     if (response.status() >= 400)
       failures.push(`${response.status()} ${response.url()}`);
   });
-  await page.goto("/");
+  await page.goto("/#minimal");
   await page.getByRole("link", { name: "10,000-product catalog" }).click();
   await expect(page.locator("article")).toHaveCount(24);
   await page.reload();
@@ -30,7 +30,12 @@ test("Angular examples navigate and refresh with working assets and endpoints", 
     page.getByLabel("Source", { exact: true }).selectOption("http"),
   ]);
   await expect(page.getByRole("status")).toHaveText("2 matches");
-  await page.getByRole("link", { name: "Documentation", exact: true }).click();
+  await expect(
+    page.getByRole("link", { name: "Documentation", exact: true }),
+  ).toHaveAttribute("href", "https://searchivo.netlify.app/docs/");
+  await page.goto(
+    (process.env["SEARCHIVO_DOCS_URL"] ?? "http://127.0.0.1:4184") + "/docs/",
+  );
   await expect(
     page.getByRole("heading", { name: "Build search with confidence." }),
   ).toBeVisible();
@@ -45,7 +50,9 @@ test("Angular examples navigate and refresh with working assets and endpoints", 
 test("documentation searches the entire library and exposes integration references", async ({
   page,
 }) => {
-  await page.goto("/docs/");
+  const docsOrigin =
+    process.env["SEARCHIVO_DOCS_URL"] ?? "http://127.0.0.1:4184";
+  await page.goto(docsOrigin + "/docs/");
   await page
     .getByRole("searchbox", { name: "Find in the guide" })
     .fill("maxVisitedNodes");
@@ -65,7 +72,7 @@ test("documentation searches the entire library and exposes integration referenc
     await page.evaluate(() => document.body.scrollWidth <= innerWidth),
   ).toBe(true);
   expect((await new AxeBuilder({ page }).analyze()).violations).toEqual([]);
-  await page.goto("/api/");
+  await page.goto(docsOrigin + "/api/");
   for (const name of [
     "@searchivo/angular",
     "@searchivo/workers/client",

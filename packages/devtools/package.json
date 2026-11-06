@@ -1,7 +1,6 @@
 {
   "name": "@searchivo/devtools",
-  "version": "0.1.0-rebuild.0",
-  "private": true,
+  "version": "0.1.0",
   "type": "module",
   "sideEffects": false,
   "files": [
@@ -10,7 +9,7 @@
     "LICENSE"
   ],
   "peerDependencies": {
-    "@searchivo/core": "0.1.0-rebuild.0"
+    "@searchivo/core": "0.1.0"
   },
   "devDependencies": {
     "@searchivo/core": "workspace:*"
@@ -27,5 +26,17 @@
     "url": "https://github.com/yovi-labs/searchivo.git",
     "directory": "packages/devtools"
   },
-  "description": "Searchivo optional devtools integration. Fast search. Simple API."
+  "description": "Searchivo optional devtools integration. Fast search. Simple API.",
+  "publishConfig": {
+    "access": "public"
+  },
+  "homepage": "https://searchivo.netlify.app/docs/",
+  "bugs": {
+    "url": "https://github.com/yovi-labs/searchivo/issues"
+  },
+  "keywords": [
+    "search",
+    "typescript",
+    "full-text-search"
+  ]
 }

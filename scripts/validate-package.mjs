@@ -7,7 +7,7 @@ import {
   readdirSync,
 } from "node:fs";
 import { tmpdir } from "node:os";
-import { join, resolve } from "node:path";
+import { join, resolve, basename } from "node:path";
 import { execFileSync } from "node:child_process";
 import { compileString, NodePackageImporter } from "sass";
 import { createHash } from "node:crypto";
@@ -20,13 +20,20 @@ const run = (command, args, cwd) =>
     stdio: "pipe",
     shell: false,
   });
-const pack = JSON.parse(
-  run(
-    npm,
-    ["pack", "--json", "--pack-destination", temp],
-    resolve("packages/core"),
-  ).toString(),
-)[0];
+const pnpmEntry = process.env.npm_execpath;
+if (!pnpmEntry || !/pnpm\.(mjs|cjs)$/.test(pnpmEntry))
+  throw new Error("Run this script using pnpm validate:package");
+const packPackage = (directory) => {
+  const data = JSON.parse(
+    run(
+      process.execPath,
+      [pnpmEntry, "pack", "--json", "--pack-destination", temp],
+      resolve(directory),
+    ).toString(),
+  );
+  return { ...data, filename: basename(data.filename) };
+};
+const pack = packPackage("packages/core");
 const allowed = /^(package.json|README.md|LICENSE|dist\/.+\.(js|d.ts))$/;
 for (const file of pack.files)
   if (!allowed.test(file.path))
@@ -76,20 +83,14 @@ run(process.execPath, ["dist/example.js"], temp);
 const pkg = JSON.parse(
   readFileSync(join(temp, "node_modules/@searchivo/core/package.json"), "utf8"),
 );
-if (!pkg.private || Object.keys(pkg.dependencies ?? {}).length)
-  throw new Error("Core must remain private and dependency-free");
+if (pkg.private === true || Object.keys(pkg.dependencies ?? {}).length)
+  throw new Error("Core must be publishable and dependency-free");
 mkdirSync("artifacts", { recursive: true });
 copyFileSync(join(temp, pack.filename), join(root, "artifacts", pack.filename));
 console.log(
   `Packed exports, allowlist, declarations and executable docs passed: ${pack.filename}`,
 );
-const angularPack = JSON.parse(
-  run(
-    npm,
-    ["pack", "--json", "--pack-destination", temp],
-    resolve("packages/angular/dist"),
-  ).toString(),
-)[0];
+const angularPack = packPackage("packages/angular/dist");
 for (const file of angularPack.files)
   if (
     !/^(package.json|README.md|LICENSE|fesm2022\/.+\.mjs(\.map)?|types\/.+\.d.ts)$/.test(
@@ -149,11 +150,11 @@ const angularManifest = JSON.parse(
   ),
 );
 if (
-  !angularManifest.private ||
+  angularManifest.private === true ||
   !angularManifest.exports["."].types ||
   !angularManifest.exports["."].default
 )
-  throw new Error("Invalid private Angular package format");
+  throw new Error("Invalid publishable Angular package format");
 copyFileSync(
   join(temp, angularPack.filename),
   join(root, "artifacts", angularPack.filename),
@@ -161,13 +162,7 @@ copyFileSync(
 console.log(
   `Packed Angular APF and strict AOT template consumer passed: ${angularPack.filename}`,
 );
-const workerPack = JSON.parse(
-  run(
-    npm,
-    ["pack", "--json", "--pack-destination", temp],
-    resolve("packages/workers"),
-  ).toString(),
-)[0];
+const workerPack = packPackage("packages/workers");
 for (const file of workerPack.files)
   if (!allowed.test(file.path))
     throw new Error(`Unexpected worker packed file: ${file.path}`);
@@ -229,13 +224,7 @@ copyFileSync(
 console.log(
   `Packed worker entry points and typed protocol consumer passed: ${workerPack.filename}`,
 );
-const adapterPack = JSON.parse(
-  run(
-    npm,
-    ["pack", "--json", "--pack-destination", temp],
-    resolve("packages/adapters"),
-  ).toString(),
-)[0];
+const adapterPack = packPackage("packages/adapters");
 for (const file of adapterPack.files)
   if (!allowed.test(file.path))
     throw new Error(`Unexpected adapter packed file: ${file.path}`);
@@ -269,13 +258,7 @@ copyFileSync(
 console.log(
   `Packed HTTP adapter passed real local HTTP round trip: ${adapterPack.filename}`,
 );
-const devtoolsPack = JSON.parse(
-  run(
-    npm,
-    ["pack", "--json", "--pack-destination", temp],
-    resolve("packages/devtools"),
-  ).toString(),
-)[0];
+const devtoolsPack = packPackage("packages/devtools");
 for (const file of devtoolsPack.files)
   if (!allowed.test(file.path))
     throw new Error(`Unexpected DevTools packed file: ${file.path}`);
@@ -301,13 +284,7 @@ copyFileSync(
   join(root, "artifacts", devtoolsPack.filename),
 );
 console.log(`Packed DevTools consumer passed: ${devtoolsPack.filename}`);
-const themePack = JSON.parse(
-  run(
-    npm,
-    ["pack", "--json", "--pack-destination", temp],
-    resolve("packages/themes"),
-  ).toString(),
-)[0];
+const themePack = packPackage("packages/themes");
 for (const file of themePack.files)
   if (
     !/^(package.json|README.md|LICENSE|searchivo.css|_index.scss)$/.test(
@@ -415,12 +392,37 @@ for (const packed of packs) {
     ),
   );
   if (
-    metadata.private !== true ||
-    metadata.version !== "0.1.0-rebuild.0" ||
+    metadata.private === true ||
+    metadata.publishConfig?.access !== "public" ||
+    metadata.version !== "0.1.0" ||
     metadata.license !== "MIT" ||
     metadata.repository?.url !== "https://github.com/yovi-labs/searchivo.git"
   )
     throw new Error(`Invalid metadata: ${packed.name}`);
+  for (const group of [
+    "dependencies",
+    "peerDependencies",
+    "optionalDependencies",
+    "devDependencies",
+  ])
+    for (const range of Object.values(metadata[group] ?? {}))
+      if (/^(workspace:|file:|link:)/.test(range))
+        throw new Error(
+          `Local dependency in published package: ${packed.name}`,
+        );
+  run(
+    npm,
+    [
+      "publish",
+      "--dry-run",
+      "--ignore-scripts",
+      "--access",
+      "public",
+      "--json",
+      join(root, "artifacts", packed.filename),
+    ],
+    root,
+  );
   if (!packed.files.some((file) => file.path === "LICENSE"))
     throw new Error(`Missing license: ${packed.name}`);
   const paths = new Set(packed.files.map((file) => "./" + file.path));
@@ -440,6 +442,8 @@ writeFileSync(
       dirty: Boolean(
         run("git", ["status", "--porcelain"], root).toString().trim(),
       ),
+      version: "0.1.0",
+      publishDryRun: true,
       files: packs.map((packed) => ({
         name: packed.filename,
         sha256: createHash("sha256")
@@ -450,4 +454,7 @@ writeFileSync(
     null,
     2,
   ),
+);
+console.log(
+  "Validated six public 0.1.0 manifests, registry-compatible dependencies and npm publish dry runs; nothing was published.",
 );

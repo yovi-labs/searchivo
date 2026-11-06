@@ -3,7 +3,7 @@ import AxeBuilder from "@axe-core/playwright";
 test("actual module Worker indexes, queries and suggests using the package protocol", async ({
   page,
 }) => {
-  await page.goto("/");
+  await page.goto("/#minimal");
   const result = await page.evaluate(async () => {
     const path = "/worker-demo.js";
     const module = (await import(/* @vite-ignore */ path)) as {
@@ -20,7 +20,7 @@ test("actual module Worker indexes, queries and suggests using the package proto
 test("native search works with keyboard and programmatic query synchronization", async ({
   page,
 }) => {
-  await page.goto("/");
+  await page.goto("/#minimal");
   const input = page.getByRole("searchbox", { name: "Search products" });
   await input.fill("iphone");
   await expect(page.getByRole("listitem")).toHaveText("Apple iPhone");
@@ -32,7 +32,7 @@ test("native search works with keyboard and programmatic query synchronization",
   await expect(input).toBeFocused();
 });
 test("real browser IME and accessibility", async ({ page }) => {
-  await page.goto("/");
+  await page.goto("/#minimal");
   const input = page.getByRole("searchbox");
   await input.dispatchEvent("compositionstart");
   await input.fill("Galaxy");

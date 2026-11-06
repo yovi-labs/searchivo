@@ -2,6 +2,10 @@
 
 ## Unreleased
 
+- Prepare six synchronized public npm packages at 0.1.0, preserving current APIs. Public access metadata, registry-compatible packed dependencies, installed consumers, publish dry runs, clean-revision archives and SHA-256 manifests support maintainer publication. Workspace/apps remain private; no npm publication runs automatically.
+- Restore the official landing/docs/playground to searchivo.netlify.app and move the Angular application to the independent searchivo-market Netlify project. Separate outputs/configuration and deployment regressions prevent mixing the sites.
+- Open Searchivo Market at its root with product details, keyboard-accessible native dialogs, and up to 100 saved products with validated browser persistence and graceful storage fallback. Preserve fictional-data labels and the feature/minimal integration views.
+
 - Deliver the actual Angular app and searchable documentation together on Netlify, with public example navigation and bounded working HTTP fixtures. Add complete public-export declarations, tutorials, recipes and operational references; validate all complete Markdown TypeScript examples, including Angular strict AOT.
 - Keep playground controls disabled until lazy initialization attaches input handlers, and show a recoverable load error when the module fails. Clean generated website output before rebuilding to exclude obsolete chunks.
 - Skip grapheme mapping for empty highlight queries; the 24-name catalog benchmark median falls from 0.2851 to 0.0034 ms on the recorded machine. Preserve public APIs and reuse feature-lab fuzzy/autocomplete derived indexes between queries.

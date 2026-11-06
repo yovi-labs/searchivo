@@ -1,7 +1,6 @@
 {
   "name": "@searchivo/themes",
-  "version": "0.1.0-rebuild.0",
-  "private": true,
+  "version": "0.1.0",
   "sideEffects": [
     "*.css"
   ],
@@ -24,5 +23,17 @@
     "url": "https://github.com/yovi-labs/searchivo.git",
     "directory": "packages/themes"
   },
-  "description": "Searchivo optional themes integration. Fast search. Simple API."
+  "description": "Searchivo optional themes integration. Fast search. Simple API.",
+  "publishConfig": {
+    "access": "public"
+  },
+  "homepage": "https://searchivo.netlify.app/docs/",
+  "bugs": {
+    "url": "https://github.com/yovi-labs/searchivo/issues"
+  },
+  "keywords": [
+    "search",
+    "typescript",
+    "full-text-search"
+  ]
 }

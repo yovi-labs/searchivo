@@ -2,7 +2,7 @@
 
 Build a local search experience with explicit ownership, typed data and optional integrations.
 
-[Live documentation](https://searchivo.netlify.app/docs/) · [Live Angular demo](https://searchivo.netlify.app/) · [10,000-product catalog](https://searchivo.netlify.app/#catalog) · [Feature lab](https://searchivo.netlify.app/#features) · [Angular source](../apps/angular-example/src)
+[Live documentation](https://searchivo.netlify.app/docs/) · [Live Angular application](https://searchivo-market.netlify.app/) · [10,000-product catalog](https://searchivo-market.netlify.app/) · [Feature lab](https://searchivo-market.netlify.app/#features) · [Angular source](../apps/angular-example/src)
 
 ## Learning library
 
@@ -41,8 +41,8 @@ Open [documentation](http://127.0.0.1:4174/docs/) or the [playground](http://127
 - [Complete guide](guide.md): semantics, ownership, cancellation, integration and troubleshooting.
 - [Architecture decisions](adr): rationale and tradeoffs behind the implementation.
 - [Benchmark methodology](../benchmarks/README.md): seeded workloads, raw samples and interpretation.
-- [Compatibility and version policy](adr/0012-release-policy.md): verified versions and private release preparation.
+- [Publishing and version policy](publishing.md): validated public artifacts, manual publishing order and account prerequisites.
 - [Verification evidence](verification-candidate.md): scoped checks for the original private candidate.
 - [Contributing](../CONTRIBUTING.md): workspace commands and review expectations.
 
-The library is pre-1.0 and unpublished. Use the workspace or validated private tarballs. The Markdown guide is the source for the website; update it directly when changing behavior.
+The library is pre-1.0 and unpublished. Use the workspace or validated release tarballs until npm publication. The Markdown guide is the source for the website; update it directly when changing behavior.

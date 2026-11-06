@@ -2,53 +2,51 @@
 
 **Fast search. Simple API.**
 
-A TypeScript-first search toolkit for applications that want control over their data, ranking and interface. Start with a zero-dependency local engine. Add Angular, workers, HTTP sources or diagnostics through explicit imports.
+A TypeScript-first search toolkit with a zero-dependency core, optional Angular Signals, workers, HTTP adapters and diagnostics. Keep control of your documents, ranking and interface.
 
 [![Quality](https://github.com/yovi-labs/searchivo/actions/workflows/ci.yml/badge.svg?branch=develop)](https://github.com/yovi-labs/searchivo/actions/workflows/ci.yml)
 [![License: MIT](https://img.shields.io/badge/license-MIT-a6e3d4)](LICENSE)
-[![Status: private candidate](https://img.shields.io/badge/status-private_candidate-ff65b3)](CHANGELOG.md)
+[![Version: 0.1.0 prepared](https://img.shields.io/badge/version-0.1.0_prepared-ff65b3)](docs/publishing.md)
 
-[Documentation](docs/README.md) · [Playground](apps/playground/README.md) · [Examples](examples) · [Benchmarks](benchmarks/README.md) · [Contributing](CONTRIBUTING.md)
+## Official website
 
-![Searchivo playground — guided experiments, configuration and live results](docs/assets/playground.png)
+[**searchivo.netlify.app →**](https://searchivo.netlify.app/) is the official Searchivo website.
 
-## Why Searchivo?
+- [Documentation](https://searchivo.netlify.app/docs/): tutorials, concepts, recipes and the complete public API.
+- [Interactive playground](https://searchivo.netlify.app/playground/): exact/fuzzy matching, BM25, filters, suggestions, workers and explanations.
+- [API reference](https://searchivo.netlify.app/api/) and [benchmark evidence](https://searchivo.netlify.app/benchmarks/).
 
-- **Own the index.** Typed documents, incremental mutations and deterministic results, without a hosted search service.
-- **Control relevance.** Field boosts, optional BM25 and bounded one-edit fuzzy matching. Inspect actual score contributions when needed.
-- **Build your interface.** Structured highlights, suggestions, refinements and cancellable state. Angular adds scoped providers, Signals and a native input directive.
-- **Pay for what you import.** Core has zero runtime dependencies. Workers, HTTP adapters, diagnostics and themes are optional.
+![Searchivo playground](docs/assets/playground.png)
 
-## Live Angular demo
+## A real application using Searchivo
 
-[**Open the live Angular demo →**](https://searchivo.netlify.app/)
+[**Open Searchivo Market →**](https://searchivo-market.netlify.app/)
 
-- [10,000-product catalog](https://searchivo.netlify.app/#catalog): fictional retail data with real Searchivo BM25 search, typo recovery, filters, sorting and pagination.
-- [Feature lab](https://searchivo.netlify.app/#features): Angular Signals, IME, mutations, workers, working HTTP fixtures, cancellation and diagnostics.
-- [Developer documentation](https://searchivo.netlify.app/docs/): tutorials, concepts, recipes and the complete API reference.
+A separate Angular product-discovery application with a complete UI: 10,000 fictional products, live BM25 search, typo recovery, category/brand/price/stock refinements, sorting, pagination, product details and a saved-products list persisted in your browser. Searchivo performs the actual retrieval and refinements. There is no checkout or sale of products.
 
-[Angular example source](apps/angular-example/src) · [Deployment arrangement](docs/deployment.md). One Netlify project serves the actual Angular application at the root and documentation under /docs/.
+[Feature integration lab](https://searchivo-market.netlify.app/#features) · [Minimal Angular example](https://searchivo-market.netlify.app/#minimal) · [Application source](apps/angular-example/src) · [Deployment configuration](apps/angular-example/netlify.toml)
 
-## Try the playground
+The official website and Market deploy to **two independent Netlify projects**. [Build and deployment guide](docs/deployment.md).
 
-Requires Node **24.22.1** and pnpm **11.28.9**.
+## Installation
+
+Version **0.1.0 is prepared for publication**. Until the maintainer publishes it, use the workspace or validated release tarballs. The registry commands below apply after publication:
 
 ```sh
- git clone --branch develop https://github.com/yovi-labs/searchivo.git
- cd searchivo
- pnpm install --frozen-lockfile
- pnpm build
- pnpm build:website
- pnpm preview:website
+npm install @searchivo/core@0.1.0
+# Optional Angular integration; install in an Angular 22.2.3 application
+npm install @searchivo/angular@0.1.0
 ```
 
-Open [the playground](http://127.0.0.1:4174/playground/) or [documentation](http://127.0.0.1:4174/docs/) while the preview is running. These URLs preview the same source as the public deployment. The preview serves a production build, so rebuild after edits.
+For a local consumer before publication:
 
-Explore exact matching, typo recovery, BM25 explanations and real worker ranking. Adjust filters, compare scores, inspect query tokens, view the dataset and copy the engine configuration. [Read the playground walkthrough →](apps/playground/README.md)
+```sh
+npm install /absolute/path/searchivo-core-0.1.0.tgz
+```
+
+[Publishing guide](docs/publishing.md) covers the six-package publish order, release artifacts, namespace access and verification. Builds and release preparation never publish packages.
 
 ## Your first search
-
-Packages are **private and unpublished**. Use the workspace, or install the exact validated tarballs from a private candidate bundle. The package names below describe those local packages, not a public npm installation.
 
 ```ts
 import { createSearchEngine } from "@searchivo/core";
@@ -65,63 +63,51 @@ const results = search.search("iphone");
 // [{ id: 1, document: ..., score: 3 }]
 ```
 
-This snippet compiles and executes against the installed tarball in CI. See the [complete executable example](examples/core.ts) for BM25, fuzzy matching, filters, suggestions, state and explanations.
+This example compiles and runs against the installed tarball in CI. See the [complete executable example](examples/core.ts) for BM25, fuzzy matching, highlights, refinements, suggestions and state.
 
-## Find the right package
+## Packages
 
-| Package               | Responsibility                                                                     | Documentation                                                                       |
-| --------------------- | ---------------------------------------------------------------------------------- | ----------------------------------------------------------------------------------- |
-| `@searchivo/core`     | Inverted index, mutations and relevance; optional entry points for advanced search | [Core](packages/core/README.md) · [Guide](docs/guide.md)                            |
-| `@searchivo/angular`  | Scoped providers, readonly Signals and native input enhancement                    | [Angular](packages/angular/README.md) · [Example](apps/angular-example/src/main.ts) |
-| `@searchivo/workers`  | Validated client/runtime protocol and transport ownership                          | [Workers](packages/workers/README.md)                                               |
-| `@searchivo/adapters` | Validated HTTP source, cancellation and timeouts                                   | [Adapters](packages/adapters/README.md)                                             |
-| `@searchivo/devtools` | Bounded local search-state recording                                               | [DevTools](packages/devtools/README.md)                                             |
-| `@searchivo/themes`   | Optional scoped CSS and Sass tokens                                                | [Themes](packages/themes/README.md)                                                 |
+| Package               | Responsibility                                                         | Reference                               |
+| --------------------- | ---------------------------------------------------------------------- | --------------------------------------- |
+| `@searchivo/core`     | Inverted index, atomic mutations, ranking and optional search features | [Core](packages/core/README.md)         |
+| `@searchivo/angular`  | Scoped providers, readonly Signals and native inputs with IME handling | [Angular](packages/angular/README.md)   |
+| `@searchivo/workers`  | Validated protocol and explicit transport ownership                    | [Workers](packages/workers/README.md)   |
+| `@searchivo/adapters` | Validated HTTP sources, timeouts and cancellation                      | [Adapters](packages/adapters/README.md) |
+| `@searchivo/devtools` | Bounded local state-transition recording                               | [DevTools](packages/devtools/README.md) |
+| `@searchivo/themes`   | Optional scoped CSS and Sass tokens                                    | [Themes](packages/themes/README.md)     |
 
-Core never imports Angular, RxJS, DOM or Node ambient types. [Architecture decisions →](docs/adr)
+Core never imports Angular, RxJS, DOM or Node ambient types. Optional features use explicit entry points and remain outside the basic consumer bundle. [Public export inventory](docs/public-api.md).
 
-## Documentation that follows your task
+## Run and verify the workspace
 
-![Searchivo documentation — searchable topics and learning paths](docs/assets/documentation.png)
+Use Node **24.22.1** and pnpm **11.28.9**, matching CI.
 
-- [Start indexing](docs/guide.md#indexing-and-ownership): IDs, duplicate handling, snapshots and atomic mutations.
-- [Tune relevance](docs/guide.md#query-semantics-and-ranking): query semantics, boosts and BM25.
-- [Build the results experience](docs/guide.md#filters-facets-sorting-and-pagination): filters, facets, stable sorting and pagination.
-- [Handle user input](docs/guide.md#suggestions-debounce-and-state): autocomplete, debounce and cancellation.
-- [Integrate Angular](packages/angular/README.md): `createSearchivo(source)`, scoped providers and `<input searchivo>`.
-- [Understand execution](docs/guide.md#workers): local, worker and HTTP boundaries.
+```sh
+git clone --branch develop https://github.com/yovi-labs/searchivo.git
+cd searchivo
+pnpm install --frozen-lockfile
+pnpm build:deploy
+pnpm preview:website
+# In another terminal: node scripts/serve.mjs dist/deploy/example 4173
+```
 
-The website renders the [versioned learning library](docs/README.md) and generated declarations for every public package entry point. Markdown remains the documentation source of truth; complete TypeScript examples compile against packed packages, including Angular strict AOT.
-
-## Quality and performance
-
-The [quality workflow](.github/workflows/ci.yml) enforces formatting, lint, strict types, per-file **100% library coverage** across four metrics, package boundaries, installed-tarball consumers, executable documentation, bundle budgets, website links, browser behavior, accessibility checks and dependency audit.
-
-The recorded basic core consumer is **2,564 bytes raw / 1,248 gzip / 1,111 Brotli**, below the unchanged 5,000-byte gzip budget. Optional features are excluded from that consumer. These figures describe that measured entry point, not every application bundle. [Bundle evidence](docs/optional-bundle-measurements.json) · [Verification scope](docs/verification-candidate.md)
-
-Seeded **1k / 10k / 100k** benchmarks cover repeated vocabulary, high-cardinality dictionaries and worker communication. Reports retain raw samples, environment and source revision. They are synthetic measurements, not production latency guarantees. [Methodology and reports →](benchmarks/README.md)
-
-## Contribute
-
-Explore every package in the [Angular feature lab](apps/angular-example/README.md): build with `pnpm build:example`, run `node scripts/serve.mjs`, then open [the local app](http://127.0.0.1:4173/#features).
-
-Manually test Searchivo in a shopping-style Angular app with [10,000 fictional products](https://searchivo.netlify.app/#catalog), live search, typo recovery, filters, sorting and pagination. It runs on the same preview server. [Catalog details](apps/angular-example/README.md).
+The official site previews at port 4174; Market previews at port 4173. The previews serve production output, so rebuild after edits.
 
 ```sh
 pnpm check
 pnpm build:deploy
+pnpm test:endpoints
 pnpm exec playwright install chromium
 pnpm test:browser
+pnpm audit --audit-level=low
 ```
 
-Start with [CONTRIBUTING.md](CONTRIBUTING.md). Use the issue templates for bugs and proposals, and the pull-request checklist for behavior changes. See [SECURITY.md](SECURITY.md) for confidential reporting guidance.
+The quality gate enforces strict types, per-file 100% library coverage, dependency boundaries, six installed-tarball consumers, complete Markdown examples, Angular AOT, package metadata and public npm publish dry runs. Browser checks exercise selected desktop/mobile layouts, keyboard, simulated IME, cancellation, errors, real workers/HTTP and accessibility with axe.
 
-## Status and compatibility
+The basic core consumer measures **2,564 bytes raw / 1,248 gzip / 1,111 Brotli**, within the unchanged 5,000-byte gzip budget. Seeded 1k/10k/100k engine and worker reports plus real 10k-catalog measurements retain raw samples and environment. These are synthetic measurements, not production latency guarantees. [Performance and complexity](docs/performance.md).
 
-This is a new implementation, not recovered historical source. The synchronized `0.1.0-rebuild.0` candidate is pre-1.0, MIT licensed and unpublished. Tested compatibility: Node 24.22.1, TypeScript 6.0.3, Angular 22.2.3 and Playwright Chromium. Other combinations are unverified.
+## Compatibility and limits
 
-Known limits: snapshots are shallow; tokenization has no stemming; fuzzy expansion can truncate; filtering follows ranking; worker cancellation abandons replies rather than interrupting CPU work. The playground keeps fuzzy expansion, refinements and explanations local in worker mode. The guide documents these contracts explicitly.
+MIT licensed, pre-1.0 and tested with Node 24.22.1, TypeScript 6.0.3, Angular 22.2.3 and Playwright Chromium. Other combinations remain unverified. Documents are shallow snapshots; queries use whole-token OR matching without stemming; fuzzy expansion can truncate; filtering follows ranking; cancellation abandons replies without interrupting synchronous CPU work. Heavy main-thread indexes may need a Worker. HTTP fixtures demonstrate transport behavior and are not a production search backend.
 
-[Changelog](CHANGELOG.md) · [Private candidate preparation](docs/adr/0012-release-policy.md) · [Project tracker](https://app.notion.com/p/3f216fa3a42381689ffbd9169bea07ae)
-
-Public npm publication, public releases and merging to `main` require separate approval. Previously prepared candidate manifests remain tied to their recorded revisions; later documentation changes do not silently replace those artifacts.
+[Documentation source](docs/README.md) · [Contributing](CONTRIBUTING.md) · [Security](SECURITY.md) · [Changelog](CHANGELOG.md) · [Release preparation](docs/publishing.md)

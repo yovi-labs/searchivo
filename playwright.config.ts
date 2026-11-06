@@ -6,7 +6,7 @@ export default defineConfig({
     ? []
     : [
         {
-          command: "node scripts/serve.mjs dist/deploy 4183",
+          command: "node scripts/serve.mjs dist/deploy/example 4183",
           url: "http://127.0.0.1:4183",
           reuseExistingServer: false,
         },

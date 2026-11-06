@@ -1,10 +1,10 @@
 # Recipe: standalone Angular search
 
-Use a scoped binding for each search domain. The [minimal live example](https://searchivo.netlify.app/) and [its complete source](https://github.com/yovi-labs/searchivo/blob/develop/apps/angular-example/src/main.ts) use this pattern. [API reference](reference-angular.md).
+Use a scoped binding for each search domain. The [minimal live example](https://searchivo-market.netlify.app/#minimal) and [its complete source](https://github.com/yovi-labs/searchivo/blob/develop/apps/angular-example/src/main.ts) use this pattern. [API reference](reference-angular.md).
 
 ## A complete standalone component
 
-The same strict-AOT consumer is compiled against the installed Angular tarball by package validation. These packages are private; follow the [installation tutorial](tutorial.md) first.
+The same strict-AOT consumer is compiled against the installed Angular tarball by package validation. These packages are prepared for publication; follow the [installation tutorial](tutorial.md) first.
 
 ```typescript
 import {

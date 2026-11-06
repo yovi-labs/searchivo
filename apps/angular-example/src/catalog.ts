@@ -4,6 +4,8 @@ import {
   DestroyRef,
   inject,
   signal,
+  viewChild,
+  type ElementRef,
 } from "@angular/core";
 import { CurrencyPipe, DecimalPipe } from "@angular/common";
 import { createSearchEngine } from "@searchivo/core";
@@ -46,6 +48,26 @@ const browse = products.map((document) => ({
 }));
 const fuzzy = createFuzzySearch(engine);
 const autocomplete = createAutocomplete(engine);
+const savedKey = "searchivo-market:saved:v1";
+function readSaved(): ReadonlySet<string> {
+  try {
+    const value: unknown = JSON.parse(localStorage.getItem(savedKey) ?? "[]");
+    if (!Array.isArray(value)) return new Set();
+    return new Set(
+      value
+        .slice(0, 100)
+        .filter(
+          (id): id is string =>
+            typeof id === "string" &&
+            /^SKU\d{5}$/.test(id) &&
+            Number(id.slice(3)) >= 1 &&
+            Number(id.slice(3)) <= 10000,
+        ),
+    );
+  } catch {
+    return new Set();
+  }
+}
 const scope = createSearchivo<CatalogProduct>((request, cancellation) => {
   if (cancellation.aborted) throw new Error("Search cancelled");
   const start = performance.now();
@@ -78,6 +100,8 @@ const scope = createSearchivo<CatalogProduct>((request, cancellation) => {
   styleUrl: "./catalog.css",
 })
 export class Catalog {
+  private readonly details =
+    viewChild.required<ElementRef<HTMLDialogElement>>("productDetails");
   readonly search = scope.inject();
   readonly query = signal("");
   readonly suggestions = signal<readonly string[]>([]);
@@ -88,6 +112,10 @@ export class Catalog {
     ...new Set(products.map((product) => product.brand)),
   ].sort();
   readonly indexMs = indexMs;
+  readonly saved = signal<ReadonlySet<string>>(readSaved());
+  readonly selected = signal<CatalogProduct | null>(null);
+  readonly actionMessage = signal("");
+  savedOnly = false;
   readonly pageSize = 24;
   category = "";
   brand = "";
@@ -137,6 +165,8 @@ export class Catalog {
       filters.push({ field: "brand", op: "eq", value: this.brand });
     if (this.stockOnly)
       filters.push({ field: "inStock", op: "eq", value: true });
+    if (this.savedOnly)
+      filters.push({ field: "id", op: "in", values: [...this.saved()] });
     void this.search.controller.search({
       query: this.query(),
       filters,
@@ -165,11 +195,48 @@ export class Catalog {
     this.maxPrice = 1500;
     this.stockOnly = false;
     this.sort = "relevance";
+    this.savedOnly = false;
     this.setQuery("");
   }
   page(direction: number) {
     this.offset = Math.max(0, this.offset + direction * this.pageSize);
     this.run(false);
+  }
+  showSaved() {
+    this.savedOnly = !this.savedOnly;
+    this.run();
+  }
+  toggleSaved(product: CatalogProduct) {
+    const next = new Set(this.saved());
+    if (next.has(product.id)) {
+      next.delete(product.id);
+      this.actionMessage.set(`${product.name} removed from saved products.`);
+    } else {
+      if (next.size >= 100) {
+        this.actionMessage.set(
+          "Your list can hold 100 products. Remove one to save another.",
+        );
+        return;
+      }
+      next.add(product.id);
+      this.actionMessage.set(`${product.name} saved.`);
+    }
+    this.saved.set(next);
+    try {
+      localStorage.setItem(savedKey, JSON.stringify([...next]));
+    } catch {
+      this.actionMessage.set(
+        "Saved for this session. Browser storage is unavailable.",
+      );
+    }
+    if (this.savedOnly) this.run();
+  }
+  openDetails(product: CatalogProduct) {
+    this.selected.set(product);
+    this.details().nativeElement.showModal();
+  }
+  closeDetails() {
+    this.details().nativeElement.close();
   }
   parts(text: string) {
     const parts: { text: string; match: boolean }[] = [];

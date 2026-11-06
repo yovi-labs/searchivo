@@ -1,7 +1,7 @@
 [build]
-  command = "pnpm build:deploy"
-  publish = "dist/deploy"
-  functions = "netlify/functions"
+  command = "pnpm build:official"
+  publish = "dist/deploy/official"
+  functions = "netlify/official-functions"
 
 [build.environment]
   NODE_VERSION = "24.22.1"
