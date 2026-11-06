@@ -112,6 +112,7 @@ export function mountPlayground(documents: readonly Product[]): () => void {
     () => performance.now(),
   );
   function search(): void {
+    if (composing) return;
     if (!validControls()) return;
     const filters: Filter<Product>[] = [];
     if (value("category"))
@@ -201,10 +202,14 @@ export function mountPlayground(documents: readonly Product[]): () => void {
     if (event.key !== "ArrowDown" && event.key !== "ArrowUp") return;
     event.preventDefault();
     activeSuggestion =
-      (activeSuggestion +
-        (event.key === "ArrowDown" ? 1 : -1) +
-        suggestionTerms.length) %
-      suggestionTerms.length;
+      activeSuggestion === -1
+        ? event.key === "ArrowDown"
+          ? 0
+          : suggestionTerms.length - 1
+        : (activeSuggestion +
+            (event.key === "ArrowDown" ? 1 : -1) +
+            suggestionTerms.length) %
+          suggestionTerms.length;
     [...suggestions.children].forEach((option, i) =>
       option.setAttribute("aria-selected", String(i === activeSuggestion)),
     );
@@ -392,6 +397,7 @@ export function mountPlayground(documents: readonly Product[]): () => void {
     };
   const compositionStart = () => {
       composing = true;
+      debounce.cancel();
     },
     compositionEnd = () => {
       composing = false;
