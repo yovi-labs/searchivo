@@ -29,6 +29,8 @@ test("Angular inputs share query, filters, pages and diagnostics", async ({
   await expect(catalog).toHaveValue("phone");
   await expect(page.getByRole("status")).toHaveText("0 matches");
   await page.getByRole("button", { name: "Programmatic Pixel" }).click();
+  await expect(bound).toHaveValue("Pixel");
+  await expect(catalog).toHaveValue("Pixel");
   await expect(page.getByRole("status")).toHaveText("0 matches");
   await page.getByLabel("Category", { exact: true }).selectOption("");
   await page.getByLabel("Page size", { exact: true }).selectOption("1");
