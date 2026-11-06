@@ -7,7 +7,7 @@ test("npm onboarding leads into a readable Angular integration guide", async ({
 }) => {
   await context.grantPermissions(["clipboard-read", "clipboard-write"]);
   await page.goto("/");
-  await page.getByRole("link", { name: "Install in Angular" }).first().click();
+  await page.getByRole("link", { name: "Get started" }).first().click();
   await expect(page).toHaveURL(/\/docs\/tutorial\/$/);
   await expect(page.locator("h1")).toHaveCount(1);
   await expect(page.locator("h1")).toHaveText(
