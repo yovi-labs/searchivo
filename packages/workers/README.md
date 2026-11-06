@@ -6,10 +6,16 @@ The [browser example](https://github.com/yovi-labs/searchivo/blob/develop/exampl
 
 Client request cancellation abandons the response. It cannot interrupt synchronous CPU work or roll back index changes. Pass ownTransport=true only if the client owns termination. Always dispose the client; detach the runtime if a shared endpoint outlives it. A runtime dispose request clears the index and rejects further operations but does not terminate a shared port. Native worker errors reject pending work; malformed messages are explicit errors.
 
-`pnpm benchmark:workers` records real Node worker startup, clone samples, indexing acknowledgments, query round trips, suggestions and worker heap samples. Browser tests exercise the module Worker path. Node worker heap is sampled without GC and is not peak or retained memory.
+Measure worker startup, document transfer and query round trips with your own dataset. Moving work off the main thread can protect UI responsiveness; it does not guarantee faster queries. [Performance guidance](https://searchivo.netlify.app/docs/performance/).
 
 ## Installation and reference
 
-After version 0.1.0 is published, install with `npm install @searchivo/workers@0.1.0 @searchivo/core@0.1.0`. Before publication, use the validated release tarball. The workspace/application builds do not publish to npm.
+Install in your application:
 
-[Full API reference and examples](https://searchivo.netlify.app/docs/reference-integrations/) · [Official website](https://searchivo.netlify.app/) · [Working Angular application](https://searchivo-market.netlify.app/) · [Publishing guide](https://searchivo.netlify.app/docs/publishing/)
+```sh
+npm install @searchivo/workers@0.1.0 @searchivo/core@0.1.0
+```
+
+See [installation and release availability](https://searchivo.netlify.app/docs/tutorial/).
+
+[Full API reference and examples](https://searchivo.netlify.app/docs/reference-integrations/) · [Official website](https://searchivo.netlify.app/) · [Working Angular application](https://searchivo-market.netlify.app/)

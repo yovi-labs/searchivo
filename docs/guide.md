@@ -1,18 +1,22 @@
-# Searchivo documentation
+# How Searchivo fits your Angular app
 
-Fast search. Simple API. Searchivo is a TypeScript-first local search toolkit with optional integrations. Version 0.1.0 is prepared for npm publication. Until the owner publishes it, use the workspace or validated release tarballs. The official website and the Angular Market application use separate Netlify projects.
+Searchivo turns the data your application already has into ranked results. Your Angular components own the interface; the library handles indexing, relevance and search state. Use it for product discovery, searchable tables, help centers or an in-app command menu.
 
 ## Getting started
 
-### Run the workspace
+### Install in your Angular application
 
-Use Node 24.22.1 and pnpm 11.28.9. Clone the repository's `develop` branch, then run `pnpm install --frozen-lockfile` and `pnpm build`. For the website, run `pnpm build:website` followed by `pnpm preview:website`. Open `/playground/` on the local preview to explore the same engine interactively.
+```sh
+npm install @searchivo/core@0.1.0 @searchivo/angular@0.1.0
+```
 
-Until publication, install the validated release tarballs in a separate consumer. After publication use npm install @searchivo/core@0.1.0 and add optional packages as needed; Angular consumers also install the documented peers. Keep package versions synchronized.
+> **Release availability:** 0.1.0 is awaiting npm publication. Use this command once the release is published. Angular compatibility is tested with 22.2.3.
+
+Start with [the installation tutorial](tutorial.md), then add [the complete Angular component](angular.md). You install Searchivo as a dependency in your own project.
 
 ### Your first query
 
-Configure an ID and searchable string fields, then index documents. Results contain the original ID, a shallow frozen document snapshot, and a numeric score.
+Choose the fields users recognize. A help center might search a title and body; a catalog might search a product name and description. Give titles a boost when a title match should matter more.
 
 ```ts
 import { createSearchEngine } from "@searchivo/core";
@@ -27,11 +31,11 @@ const results = search.search("typed");
 export { results };
 ```
 
-This query matches the `body` field. Searching `search` matches both fields, so the title boost contributes to its score. An empty query produces no hits. Use `upsert` to replace a document; `add` rejects duplicate IDs.
+The result includes the document, its stable ID and its relevance score. Render `hit.document.title` in your Angular template. An empty query returns no hits; showing all records before someone types is an application choice.
 
 ### Add capabilities progressively
 
-The following complete example demonstrates the optional modules together. Both examples compile and execute against actual packed declarations during validation. Start with the imports you need; the core entry point does not load these optional modules.
+Start with exact search. Add a feature when it solves a concrete problem: BM25 for longer documents, fuzzy matching for typos, filters for narrowing a catalog, or suggestions while someone types. Optional imports stay separate from the basic engine.
 
 ```ts
 import { createSearchEngine } from "@searchivo/core";
@@ -75,70 +79,122 @@ export { hits, ranges, page, suggestions, explanation };
 
 ## Indexing and ownership
 
-Configure an explicit ID key and searchable string fields. Finite numbers and nonempty strings are valid IDs; 1 and "1" are distinct. add rejects duplicates in the batch or index. upsert inserts or replaces full documents and retains the original tie order. Duplicate IDs within an upsert batch reject. remove returns whether an ID existed; clear resets the index and insertion order.
+**An index is a searchable view of your data.** Configure the ID and searchable string fields, then add documents once. Reuse the engine across queries instead of rebuilding it on every keystroke.
 
-Batches validate and tokenize before mutation, so validation failure leaves the index unchanged. This does not promise recovery from process termination or out-of-memory. Document snapshots are shallow copies and frozen at the top level. Indexed strings and IDs are isolated; nested nonindexed values remain caller-owned. Configuration field names and boosts are copied. Do not mutate the engine from a scoring callback or during vocabulary iteration.
+| When your data changes   | Use                 | Result                                            |
+| ------------------------ | ------------------- | ------------------------------------------------- |
+| New records arrive       | `add(documents)`    | Indexes new IDs; duplicate IDs reject.            |
+| A record is edited       | `upsert(documents)` | Replaces the full document, or inserts it if new. |
+| A record is deleted      | `remove(id)`        | Removes it and reports whether it existed.        |
+| A user changes workspace | `clear()`           | Removes all indexed documents.                    |
+
+IDs can be nonempty strings or finite numbers. Keep them stable: `1` and `"1"` are different IDs. Validation failures leave the batch unchanged. Documents are shallow snapshots; nested values outside indexed fields remain caller-owned. [Index contract](reference-core.md).
 
 ## Query semantics and ranking
 
-NFKC normalization and locale-independent lowercase precede Unicode letter/number/mark tokenization. Accents remain significant. There is no stemming or language-specific segmentation. Queries use OR matching; repeated terms count once. Empty/punctuation-only queries return no hits. Default score sums field boost × term frequency; ties follow insertion order.
+**Relevance decides what appears first.** Searchivo finds matching tokens, assigns a score and returns the highest scores first. Matching a boosted product name can outweigh a match in its description.
 
-BM25 is an optional entry point. It sums per-field contributions using document-level term frequency statistics across indexed fields, field lengths and average lengths. This field-weighted variant is not BM25F. k1 must be finite/positive, b must lie in [0,1]. Custom pure scorers receive frequency, document frequency/count, lengths and boost. Invalid or overflowing scores fail explicitly.
+| Search requirement                              | Choose                                               |
+| ----------------------------------------------- | ---------------------------------------------------- |
+| Short names and predictable field weights       | Default term-frequency ranking with field boosts.    |
+| Articles or descriptions with different lengths | Optional `bm25()` ranking.                           |
+| Understand an unexpected result                 | `explainSearch` to inspect real score contributions. |
+
+Queries match any query token (OR). Case is normalized, repeated terms count once, and equal scores retain insertion order. Accents remain significant; stemming is not applied. BM25 here is a field-weighted variant, not BM25F. [Ranking options and parameters](reference-core.md).
 
 ## Fuzzy matching and highlights
 
-createFuzzySearch builds a derived trie lazily and refreshes it after mutations. It supports one insertion, deletion, substitution or adjacent transposition using Optimal String Alignment distance. Default limits are 128 candidates, 16 accepted expansions and 4096 visited nodes per token. Queries above 4096 UTF-16 code units reject; tokens above 64 code points receive exact matching only. A truncated response means corrections may have been omitted. Corrections currently receive the same ranking weight as exact terms.
+**Help users recover from a typo.** A query such as `iphnoe` can find `iphone` with `createFuzzySearch(engine)`. Create the fuzzy helper once and reuse it; it refreshes its derived dictionary after index changes.
 
-highlight returns original-text half-open UTF-16 ranges, never HTML. Grapheme mappings preserve NFKC expansions, combining marks, Hangul Jamo and astral characters. Overlapping expansion ranges merge. This optional helper requires Intl.Segmenter. Render text nodes and mark elements using textContent; never inject result text as HTML.
+Fuzzy search supports one insertion, deletion, substitution or adjacent transposition. Its bounded work protects the UI, and `truncated` tells you when some corrections may have been omitted. Exact and corrected terms currently use the same ranking weight.
+
+**Show why a result matched.** `highlight(text, query)` returns ranges into the original text. Render the matching ranges with text nodes and `<mark>` elements. Never insert document content as HTML. [Fuzzy limits and safe highlights](reference-core.md).
 
 ## Filters, facets, sorting and pagination
 
-refine operates on ranked results. Equality and membership values are typed to the selected scalar field; ranges are inclusive and numeric-only. Filters combine with AND. Facets count filtered results before pagination and are not disjunctive. No persistent facet index is kept.
+**Search finds candidates; refinements help people choose.** Apply `refine` to ranked results when your interface needs category filters, a price range, sort controls or pages.
 
-Stable scalar sorting retains relevance order for equal values. String sorting uses JavaScript lexical order, not locale collation. Default offset is 0 and limit is 20; zero limit still returns totals/facets. Filtering currently follows ranking, so restrictive filters do not save ranking work. Empty query does not mean match-all browsing.
+| Control in your UI      | Searchivo concept                               |
+| ----------------------- | ----------------------------------------------- |
+| Brand checkbox          | Typed equality or membership filter.            |
+| Minimum / maximum price | Inclusive numeric range.                        |
+| Category counts         | Facets over filtered matches before pagination. |
+| Price: low to high      | Stable scalar sorting.                          |
+| Next page               | `offset` and `limit`; total remains available.  |
+
+Filters combine with AND. Refinements run after ranking; they do not reduce ranking work. Facets are not disjunctive. [Refinement reference](reference-interaction.md) · [Try the catalog](https://searchivo-market.netlify.app/).
 
 ## Suggestions, debounce and state
 
-createAutocomplete uses a lazy sorted dictionary and binary prefix lookup. Empty/multiple-token queries produce no suggestions. groupedSuggestions accepts named async sources, preserves group order and rejects the group if a source fails. Cancellation is checked before and after resolution.
+**Keep the interface responsive as someone types.** Prefix suggestions help complete a word; debounce avoids starting work for every keystroke. Search state gives the template one place to read results, totals, loading and errors.
 
-createSearchState exposes query, results, loading, error, total, facets and duration. It combines cancellation with request generations so a transport ignoring abort cannot overwrite newer state. Previous results remain visible while loading. Dispose cancels and removes subscribers. Subscribers must not throw or mutate snapshots. createDebouncer accepts a platform scheduler returning a cancellation function; it is separate from the synchronous engine. Its cancel() method drops pending work while allowing later submissions; dispose() permanently closes it. The playground supplies minimum-length behavior as application policy.
+| Need                                          | Use                                               |
+| --------------------------------------------- | ------------------------------------------------- |
+| Complete a single-token prefix                | `createAutocomplete`.                             |
+| Combine suggestion sources                    | `groupedSuggestions`.                             |
+| Delay a request while typing                  | `createDebouncer`.                                |
+| Keep old responses from replacing new results | `createSearchState`, used by the Angular binding. |
+
+Previous results stay visible during loading. Render a loading indicator and an error message so people understand the current state. Cancellation protects request ordering even when a transport ignores abort. [Async recipes](recipes.md) · [State API](reference-interaction.md).
 
 ## Angular
 
-Use createSearchivo(source), add binding.provide() to component providers, import SearchivoInputDirective, and call binding.inject() in an injection context. The handle exposes readonly Signals and the typed controller. `<input searchivo>` preserves native markup and labels. Programmatic queries synchronize the input; IME composition commits on compositionend. DestroyRef disposes each scoped controller.
+**Connect your existing markup to reactive results.** Create a binding, provide it in your component, import `SearchivoInputDirective`, then read `binding.inject()` from a field initializer.
 
-The runnable example is standalone, OnPush and zoneless. Tested compatibility is Angular 22.2.3, TypeScript 6.0.3 and Node 24.22.1. APF tarballs are validated with strict AOT templates. The library does not impose NgModules, CSS or combobox markup. The playground demonstrates keyboard-driven combobox behavior as a consumer.
+1. Add `searchivo` to your labeled native input.
+2. Render `search.state().results` with Angular's `@for` and track each hit's ID.
+3. Show `loading`, `error` and `total` from the same state.
+4. Use the typed controller when filters or pagination change.
+
+The integration supports OnPush and zoneless change detection. It commits IME composition at the right time and disposes the component's controller through `DestroyRef`. You keep control of HTML, CSS and accessibility. [Complete Angular component](angular.md) · [Angular API](reference-angular.md).
 
 ## Workers
 
-Construct the engine and custom strategies inside the worker. Attach attachWorkerRuntime with a document guard. Connect createWorkerClient through webTransport and acknowledge ready before use. Client/runtime entry points are separate and protocol version/IDs/payloads/results are validated. Worker errors reject pending work.
+### Advanced: keep expensive work off the UI thread
 
-Abort abandons the reply, not synchronous CPU work or mutations. Client disposal terminates only when ownTransport=true; otherwise the caller owns the worker/port. Runtime dispose clears data and rejects future operations; the attachment disposer also removes the listener. The playground uses worker ranking with local fuzzy expansion/refinements and locally recomputed explanations, and labels that split explicitly.
+Measure your own dataset first. If indexing or ranking blocks interaction, the optional worker integration moves that work to a module Worker. It is an execution choice; the search experience still belongs to your Angular application.
+
+Construct the engine inside the Worker and attach a guarded runtime. Connect the client, wait for readiness, and dispose resources you own. Abort abandons a reply; it does not interrupt synchronous CPU work. [Worker setup and ownership](reference-integrations.md).
 
 ## HTTP adapters
 
-createHttpSource POSTs the typed request to an HTTP(S) endpoint. Supply a runtime document guard and facet-field allowlist. It validates envelopes, IDs, scores, totals, facets and metadata. Duplicate result IDs reject. A separate cancellation/timeout race rejects even if fetch ignores abort; timers and listeners are cleaned up.
+### Advanced: connect a search endpoint
 
-Authentication can be supplied by a custom fetch wrapper. No credentials or provider-specific APIs are assumed. This project is a toolkit, not a distributed search server. Use createSearchState with the source to guard async races.
+Use the optional HTTP source when documents should stay on your server. It sends a typed request and validates responses before exposing them to the UI. The same state controller handles loading, errors and stale responses.
+
+You own the backend, authentication and authorization. Searchivo does not provide a distributed search server. [HTTP recipe](recipes.md) · [Adapter contract](reference-integrations.md).
 
 ## Explanations and DevTools
 
-explainSearch records real per-field/per-term contributions with boosts and final results. Supply expandedTerms from fuzzy search when needed. Normal search allocates no explanation records; the base engine only checks for an optional observer. Timings name normalization and instrumented search, including capture overhead. Supply a high-resolution clock if desired.
+### Advanced: inspect relevance during development
 
-recordSearch stores bounded local state summaries without documents or remote telemetry. Dispose the recorder to remove its subscription. The optional modules do not enter basic consumer bundles.
+Use `explainSearch` to see which fields and terms contributed to a score. This helps you tune boosts against the queries your users actually enter. Regular queries do not allocate explanation records.
+
+The optional recorder captures bounded local state summaries without sending documents or telemetry anywhere. [Diagnostics reference](reference-integrations.md).
 
 ## Themes and accessibility
 
-Optional CSS lives in @searchivo/themes/css and applies only within searchivo-theme. The Sass entry exposes a tokens mixin through the NodePackageImporter. Core and framework behavior work without styles. Consumers own labels, focus, keyboard navigation and live regions. Browser/axe checks cover the included examples, not every possible integration.
+**Make search feel native to your product.** Searchivo does not impose a component library. Keep your existing styles, or add optional scoped CSS from `@searchivo/themes/css`.
+
+Always give the input a visible label. Announce results with a status region, keep keyboard focus predictable, and render highlights as text. An autocomplete popup needs its own complete keyboard and ARIA behavior. [Angular input guidance](angular.md#native-input-and-ime).
 
 ## Performance methodology
 
-Seeded 1k/10k/100k fixtures cover repeated vocabulary and high-cardinality dictionaries. Reports preserve environment, revision, dirty state, warmups and raw samples. Retained heap follows explicit GC; post-index samples are not peak allocations. Worker startup/clone/acknowledgment/round trips are measured separately. Small heap differences may be negative due to GC noise. Fixtures are synthetic and do not promise production latency.
+**Start small, measure with real queries, then tune.** The basic core consumer is measured at 1,248 gzip bytes. Seeded benchmarks cover 1,000, 10,000 and 100,000 documents and retain their environments and raw samples.
 
-The trie replaced a measured memory-heavy deletion-key index. Both reports remain available. Basic consumer bundle sizes are measured raw/gzip/Brotli and checked against the unchanged 5KB gzip budget. Cross-machine timing comparisons are not regression evidence; performance safeguards also enforce bounded fuzzy traversal and stable operation semantics.
+Those measurements help you understand costs, not predict your users' latency. Indexing, first-use fuzzy dictionary construction and transport overhead have different costs. [Performance guide](performance.md) · [Benchmark evidence](https://searchivo.netlify.app/benchmarks/).
 
 ## Migration and troubleshooting
 
-Version 0.1.0 is prepared for publication and remains pre-1.0. Record API changes and migration guidance in the changelog. The owner publishes validated tarballs using the publishing guide; build/deploy commands never publish packages.
+Searchivo 0.1.0 is pre-1.0. Keep core and integration versions synchronized and review the [changelog](../CHANGELOG.md) when upgrading.
 
-No results: check the configured string fields, exact token semantics, accents and minimum length. Duplicate IDs: use upsert for replacement or fix the batch. Stale nested data: snapshots are shallow. Slow first fuzzy query: derived indexes rebuild after mutations; keep heavy indexing off the UI thread. Angular injection errors: provide the binding in the same scope as the directive. Worker silence: verify module URL, message protocol, runtime attachment and document guard. Remote validation errors: compare your response with the documented source shape. Unexpected rankings: inspect actual contributions with explainSearch.
+| What you see             | Check first                                                                                     |
+| ------------------------ | ----------------------------------------------------------------------------------------------- |
+| No results               | Searchable string fields, complete tokens and accents; empty queries intentionally return none. |
+| Duplicate ID error       | Use `upsert` for replacements and unique IDs within each batch.                                 |
+| Angular injection error  | Import the directive and provide the same binding in its component scope.                       |
+| Unexpected order         | Inspect boosts and `explainSearch` before changing ranking.                                     |
+| Slow first fuzzy query   | Reuse the helper; dictionary construction happens after mutations.                              |
+| Remote response rejected | Compare the endpoint's response with the validated source contract.                             |
+
+Read the [security and resource limits](security.md) before accepting untrusted data or queries.

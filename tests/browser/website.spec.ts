@@ -1,5 +1,74 @@
 import { expect, test } from "@playwright/test";
 import AxeBuilder from "@axe-core/playwright";
+
+test("npm onboarding leads into a readable Angular integration guide", async ({
+  page,
+  context,
+}) => {
+  await context.grantPermissions(["clipboard-read", "clipboard-write"]);
+  await page.goto("/");
+  await page.getByRole("link", { name: "Install in Angular" }).first().click();
+  await expect(page).toHaveURL(/\/docs\/tutorial\/$/);
+  await expect(page.locator("h1")).toHaveCount(1);
+  await expect(page.locator("h1")).toHaveText(
+    "Install Searchivo in your Angular app",
+  );
+  await expect(page.locator("main")).not.toContainText(
+    /git clone|Install the workspace|\.tgz/,
+  );
+  await expect(
+    page.getByRole("navigation", { name: "Documentation library" }),
+  ).not.toContainText("Publish the npm packages");
+  await page
+    .getByRole("button", { name: "Copy code", exact: true })
+    .first()
+    .click();
+  expect(await page.evaluate(() => navigator.clipboard.readText())).toContain(
+    "npm install @searchivo/core@0.1.0 @searchivo/angular@0.1.0",
+  );
+  await page
+    .getByRole("navigation", { name: "On this page" })
+    .getByRole("link", { name: "4. Connect your Angular interface" })
+    .click();
+  await page
+    .getByRole("link", {
+      name: "the complete standalone component",
+      exact: true,
+    })
+    .click();
+  await expect(page).toHaveURL(/\/docs\/angular\/$/);
+  await expect(page.locator("h1")).toHaveCount(1);
+  await expect(page.locator('.docs-nav a[aria-current="page"]')).toContainText(
+    "Standalone Angular",
+  );
+  await expect(page.locator("article")).toContainText("binding.provide()");
+  await page.setViewportSize({ width: 1440, height: 1000 });
+  await page.screenshot({ path: "artifacts/angular-docs-desktop.png" });
+  expect(
+    await page
+      .locator("h1")
+      .evaluate((element) => parseFloat(getComputedStyle(element).fontSize)),
+  ).toBeLessThanOrEqual(48);
+  await page.setViewportSize({ width: 390, height: 844 });
+  const menu = page.getByRole("button", {
+    name: "Browse documentation",
+    exact: true,
+  });
+  await expect(menu).toHaveAttribute("aria-expanded", "false");
+  await expect(
+    page.getByRole("navigation", { name: "Documentation library" }),
+  ).toBeHidden();
+  await menu.click();
+  await expect(
+    page.getByRole("navigation", { name: "Documentation library" }),
+  ).toBeVisible();
+  await menu.click();
+  expect(
+    await page.evaluate(() => document.body.scrollWidth <= innerWidth),
+  ).toBe(true);
+  expect((await new AxeBuilder({ page }).analyze()).violations).toEqual([]);
+  await page.screenshot({ path: "artifacts/angular-docs-mobile.png" });
+});
 test.use({
   baseURL: process.env["SEARCHIVO_DOCS_URL"] ?? "http://127.0.0.1:4184",
 });
@@ -101,7 +170,7 @@ test("documentation topic search, empty state, learning paths and copy", async (
     .first()
     .click();
   expect(await page.evaluate(() => navigator.clipboard.readText())).toContain(
-    "createSearchEngine",
+    "npm install @searchivo/core@0.1.0 @searchivo/angular@0.1.0",
   );
   expect((await new AxeBuilder({ page }).analyze()).violations).toEqual([]);
   await page.setViewportSize({ width: 390, height: 844 });

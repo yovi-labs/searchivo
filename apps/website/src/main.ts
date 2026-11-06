@@ -6,6 +6,23 @@ if (
   ["#catalog", "#features", "#minimal"].includes(location.hash)
 )
   location.replace(`https://searchivo-market.netlify.app/${location.hash}`);
+const docsSidebar = document.querySelector<HTMLElement>(".docs-sidebar");
+const docsNavigation = docsSidebar?.querySelector<HTMLElement>(".docs-nav");
+if (docsSidebar && docsNavigation) {
+  docsNavigation.id = "docs-topics";
+  const toggle = document.createElement("button");
+  toggle.type = "button";
+  toggle.className = "docs-menu-toggle";
+  toggle.textContent = "Browse documentation";
+  toggle.setAttribute("aria-controls", "docs-topics");
+  toggle.setAttribute("aria-expanded", "false");
+  toggle.addEventListener("click", () => {
+    const expanded = docsSidebar.classList.toggle("is-expanded");
+    toggle.setAttribute("aria-expanded", String(expanded));
+  });
+  docsNavigation.before(toggle);
+  docsSidebar.classList.add("has-docs-menu");
+}
 const docsSearch = document.querySelector<HTMLInputElement>("#docs-search");
 if (docsSearch) {
   const sections = [
@@ -60,7 +77,16 @@ document.querySelectorAll<HTMLElement>("article pre").forEach((pre) => {
       button.textContent = "Select code to copy";
     }
   });
-  pre.before(button);
+  const panel = document.createElement("div");
+  panel.className = "code-example";
+  const toolbar = document.createElement("div");
+  toolbar.className = "code-toolbar";
+  const language = document.createElement("span");
+  language.textContent =
+    pre.querySelector("code")?.className.replace("language-", "") || "Example";
+  pre.before(panel);
+  toolbar.append(language, button);
+  panel.append(toolbar, pre);
 });
 const input = document.querySelector<HTMLInputElement>("#home-query");
 if (input) {

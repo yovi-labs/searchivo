@@ -37,7 +37,7 @@ for (const [name, source] of [
   writeFileSync(
     `${output}/_redirects`,
     name === "official"
-      ? "/website/ / 301\n"
+      ? "/website/ / 301\n/docs/publishing/ https://github.com/yovi-labs/searchivo/blob/develop/docs/publishing.md 301\n/docs/deployment/ https://github.com/yovi-labs/searchivo/blob/develop/docs/deployment.md 301\n"
       : "/docs/* https://searchivo.netlify.app/docs/:splat 301\n",
   );
 }

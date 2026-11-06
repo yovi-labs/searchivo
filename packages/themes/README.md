@@ -6,6 +6,12 @@ Sass consumers can use `@use 'pkg:@searchivo/themes/scss' as searchivo` with the
 
 ## Installation and reference
 
-After version 0.1.0 is published, install with `npm install @searchivo/themes@0.1.0`. Before publication, use the validated release tarball. The workspace/application builds do not publish to npm.
+Install in your application:
 
-[Full API reference and examples](https://searchivo.netlify.app/docs/reference-integrations/) · [Official website](https://searchivo.netlify.app/) · [Working Angular application](https://searchivo-market.netlify.app/) · [Publishing guide](https://searchivo.netlify.app/docs/publishing/)
+```sh
+npm install @searchivo/themes@0.1.0
+```
+
+See [installation and release availability](https://searchivo.netlify.app/docs/tutorial/).
+
+[Full API reference and examples](https://searchivo.netlify.app/docs/reference-integrations/) · [Official website](https://searchivo.netlify.app/) · [Working Angular application](https://searchivo-market.netlify.app/)

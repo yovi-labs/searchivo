@@ -1,23 +1,26 @@
-# Tutorial: build your first search
+# Install Searchivo in your Angular app
 
-Use this tutorial for a small typed local index. Continue with the [Angular recipe](angular.md) when you need a native input and reactive results. The [live Angular application](https://searchivo-market.netlify.app/), [catalog](https://searchivo-market.netlify.app/) and [feature lab](https://searchivo-market.netlify.app/#features) use the same packages. Every catalog product, price, rating, illustration and stock value is fictional.
+Turn a list of products, articles or records into ranked search results. Install the packages in your existing Angular application, describe the fields people search, and connect the results to your own interface.
 
-## Install the workspace
+## 1. Install with npm
 
-Searchivo `0.1.0` is prepared for npm publication. Until the owner publishes the release, use the workspace or validated release tarballs. Clone [the repository](https://github.com/yovi-labs/searchivo/tree/develop), use Node 24.22.1 and pnpm 11.28.9, and run:
+From your Angular application's directory, install both packages at the same version:
 
 ```sh
-pnpm install --frozen-lockfile
-pnpm build
-pnpm build:deploy
-node scripts/serve.mjs dist/deploy/example 4173
+npm install @searchivo/core@0.1.0 @searchivo/angular@0.1.0
 ```
 
-This preview serves Searchivo Market and its HTTP fixtures at port 4173. Run pnpm preview:website separately for landing/docs/playground at port 4174. Rebuild after edits. For another repository, install the validated tarballs you need with pnpm add /absolute/path/searchivo-core-0.1.0.tgz. After publication, npm install @searchivo/core@0.1.0 is the registry equivalent. Angular peers are listed in the [reference](reference-angular.md).
+> **Release availability:** version 0.1.0 is awaiting npm publication. This command becomes available when the release is published.
 
-## Index, query and update
+The Angular integration supports the tested Angular **22.2.3** environment. Check the [Angular compatibility reference](reference-angular.md) before installing. You do not need the Searchivo repository, its build tools or a hosted search service to use the library.
 
-This complete example uses exact token retrieval, deterministic ranking and safe document replacement. It compiles and runs against the packed package during validation.
+## 2. Define what people can search
+
+An **index** is the searchable view of your data. Give each document a stable ID and choose its searchable string fields. A field boost makes a match in that field contribute more to the result's score: a product name can matter more than its description.
+
+## 3. Index, query and update
+
+This complete example indexes two products. Searching `desk` ranks the desk lamp first because the match appears in its boosted name. The same engine stays alive as products change.
 
 ```ts
 import { createSearchEngine, tokenize } from "@searchivo/core";
@@ -63,6 +66,12 @@ export { hits, statistics, revision, dictionary };
 ```
 
 `search()` returns all ranked hits; it does not paginate. Empty queries return no hits. To build catalog browsing, explicitly supply your application's product list when the query is empty, then use `refine`. The [10,000-product source](https://github.com/yovi-labs/searchivo/blob/develop/apps/angular-example/src/catalog.ts) demonstrates this policy, fuzzy fallback, 24-item pages, typed filters and Signals.
+
+## 4. Connect your Angular interface
+
+Use [the complete standalone component](angular.md) to connect this engine to a labeled native input, reactive results and loading/error states. The binding manages the component's search state and cleans it up when Angular destroys the component.
+
+Try the result in [Searchivo Market](https://searchivo-market.netlify.app/): search, narrow by category or price, open product details and save favorites. Its demonstration products and prices are fictional.
 
 ## Next steps
 

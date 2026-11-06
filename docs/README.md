@@ -1,48 +1,25 @@
 # Searchivo documentation
 
-Build a local search experience with explicit ownership, typed data and optional integrations.
+Install Searchivo in your Angular application and build a search experience that fits your product.
 
-[Live documentation](https://searchivo.netlify.app/docs/) · [Live Angular application](https://searchivo-market.netlify.app/) · [10,000-product catalog](https://searchivo-market.netlify.app/) · [Feature lab](https://searchivo-market.netlify.app/#features) · [Angular source](../apps/angular-example/src)
+[Official website](https://searchivo.netlify.app/) · [Developer documentation](https://searchivo.netlify.app/docs/) · [Searchivo Market](https://searchivo-market.netlify.app/)
 
-## Learning library
+## Start building
 
-- Tutorial: [Your first typed search](tutorial.md).
-- Concepts: [Engine and integration contracts](guide.md).
-- Recipes: [Angular](angular.md), [async state, HTTP and workers](recipes.md).
-- Reference: [Core](reference-core.md), [interaction](reference-interaction.md), [Angular](reference-angular.md), [integrations](reference-integrations.md), [public inventory](public-api.md).
-- Operations: [Performance and complexity](performance.md), [security](security.md), [deployment and troubleshooting](deployment.md).
+| Your goal                                     | Read                                                                 |
+| --------------------------------------------- | -------------------------------------------------------------------- |
+| Install the npm packages and search your data | [Installation tutorial](tutorial.md).                                |
+| Connect a native input and reactive results   | [Standalone Angular guide](angular.md).                              |
+| Understand indexes, ranking and refinements   | [Search concepts](guide.md).                                         |
+| Handle async results and a backend            | [Async recipes](recipes.md).                                         |
+| Tune relevance using real examples            | [Interactive playground](https://searchivo.netlify.app/playground/). |
 
-## Choose a path
+## Look up an API
 
-| Goal                             | Start here                                                                  | Runnable source                                            |
-| -------------------------------- | --------------------------------------------------------------------------- | ---------------------------------------------------------- |
-| Search typed documents           | [Getting started](guide.md#getting-started)                                 | [Core example](../examples/core.ts)                        |
-| Tune relevance                   | [Ranking](guide.md#query-semantics-and-ranking)                             | [Playground](../apps/playground/README.md)                 |
-| Handle typos and highlights      | [Fuzzy matching](guide.md#fuzzy-matching-and-highlights)                    | [Core example](../examples/core.ts)                        |
-| Build a results interface        | [Filters, facets and pages](guide.md#filters-facets-sorting-and-pagination) | [Playground source](../apps/playground/src/index.ts)       |
-| Add Angular                      | [Angular integration](../packages/angular/README.md)                        | [Standalone example](../apps/angular-example/src/main.ts)  |
-| Move ranking off the main thread | [Worker contract](../packages/workers/README.md)                            | [Worker client](../examples/browser-worker-client.ts)      |
-| Connect a backend                | [HTTP adapter](../packages/adapters/README.md)                              | [Validated HTTP consumer](../scripts/validate-package.mjs) |
-| Understand scores                | [Explanations](guide.md#explanations-and-devtools)                          | [Core example](../examples/core.ts)                        |
+[Core](reference-core.md) · [Filters, suggestions and state](reference-interaction.md) · [Angular](reference-angular.md) · [Advanced integrations](reference-integrations.md) · [Public exports](public-api.md)
 
-## Browse the local documentation site
+## Ship your integration
 
-```sh
-pnpm install --frozen-lockfile
-pnpm build
-pnpm build:website
-pnpm preview:website
-```
+Read [performance and complexity](performance.md) and [security and resource limits](security.md). Use the [changelog](../CHANGELOG.md) when upgrading. The tested Angular version is 22.2.3; exact compatibility is listed in the Angular reference.
 
-Open [documentation](http://127.0.0.1:4174/docs/) or the [playground](http://127.0.0.1:4174/playground/) while the preview is running. The guide has topic search, copyable examples and links to generated API declarations. These are local preview URLs. Use the public links above for shared demos.
-
-## Reference and maintenance
-
-- [Complete guide](guide.md): semantics, ownership, cancellation, integration and troubleshooting.
-- [Architecture decisions](adr): rationale and tradeoffs behind the implementation.
-- [Benchmark methodology](../benchmarks/README.md): seeded workloads, raw samples and interpretation.
-- [Publishing and version policy](publishing.md): validated public artifacts, manual publishing order and account prerequisites.
-- [Verification evidence](verification-candidate.md): scoped checks for the original private candidate.
-- [Contributing](../CONTRIBUTING.md): workspace commands and review expectations.
-
-The library is pre-1.0 and unpublished. Use the workspace or validated release tarballs until npm publication. The Markdown guide is the source for the website; update it directly when changing behavior.
+Repository development, release preparation and website deployment are covered in [Contributing](../CONTRIBUTING.md).

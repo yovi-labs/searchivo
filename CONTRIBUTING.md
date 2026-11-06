@@ -2,6 +2,10 @@
 
 Thanks for helping make search simpler to integrate and easier to understand. The active implementation branch is `develop`. Six public packages are prepared at 0.1.0; the workspace and applications remain private.
 
+## Fork and propose a change
+
+Using Searchivo in an application starts with the npm installation in the [README](README.md). Repository setup is for contributors. Fork the repository, work on a branch in your fork, and submit a pull request to `yovi-labs/searchivo` targeting `develop`. Maintainers review and merge accepted changes. This contribution workflow does not restrict rights granted by the MIT license.
+
 ## Set up the workspace
 
 Use Node 24.22.1 and pnpm 11.28.9, matching CI. Run `pnpm install --frozen-lockfile`, then `pnpm build`. The repository uses pnpm workspaces and native TypeScript project references.
@@ -24,7 +28,7 @@ Run `pnpm build:deploy` before browser tests to build libraries, Angular, worker
 ## Make a focused change
 
 1. Describe the observable problem and expected result in an issue. For substantial changes, explain the proposed contract before adding abstractions.
-2. Branch from `develop` using a descriptive name; Codex-authored branches use `codex/`.
+2. In your fork, branch from `develop` using a descriptive name; Codex-authored branches use `codex/`.
 3. Keep core platform-independent. Framework and platform integrations may depend on core, never the reverse.
 4. Add behavior or invariant tests for changed library behavior. Preserve strict types and per-file 100% coverage without broad exclusions.
 5. Update the guide, examples and changelog when public behavior changes. Record consequential tradeoffs in `docs/adr`.

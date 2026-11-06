@@ -2,6 +2,8 @@
 
 ## Unreleased
 
+- Make public documentation Angular-first with npm installation, a complete standalone component, practical concepts, readable navigation and code panels. Separate contributor/release operations from consumer guides; keep MIT rights and the fork/pull-request contribution workflow explicit.
+
 - Prepare six synchronized public npm packages at 0.1.0, preserving current APIs. Public access metadata, registry-compatible packed dependencies, installed consumers, publish dry runs, clean-revision archives and SHA-256 manifests support maintainer publication. Workspace/apps remain private; no npm publication runs automatically.
 - Restore the official landing/docs/playground to searchivo.netlify.app and move the Angular application to the independent searchivo-market Netlify project. Separate outputs/configuration and deployment regressions prevent mixing the sites.
 - Open Searchivo Market at its root with product details, keyboard-accessible native dialogs, and up to 100 saved products with validated browser persistence and graceful storage fallback. Preserve fictional-data labels and the feature/minimal integration views.

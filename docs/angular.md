@@ -1,10 +1,18 @@
 # Recipe: standalone Angular search
 
-Use a scoped binding for each search domain. The [minimal live example](https://searchivo-market.netlify.app/#minimal) and [its complete source](https://github.com/yovi-labs/searchivo/blob/develop/apps/angular-example/src/main.ts) use this pattern. [API reference](reference-angular.md).
+Add ranked search to an existing standalone Angular component while keeping your own HTML and styles. Searchivo connects a native input to readonly Signals, so results update with OnPush and zoneless change detection.
+
+## Install in your application
+
+```sh
+npm install @searchivo/core@0.1.0 @searchivo/angular@0.1.0
+```
+
+See [release availability and compatibility](tutorial.md#1-install-with-npm). The [live Angular example](https://searchivo-market.netlify.app/#minimal) shows the result without any setup.
 
 ## A complete standalone component
 
-The same strict-AOT consumer is compiled against the installed Angular tarball by package validation. These packages are prepared for publication; follow the [installation tutorial](tutorial.md) first.
+The engine selects the searchable fields. `localSource` connects it to Searchivo's state controller. The Angular binding provides that controller to this component, and `searchivo` connects the input to it.
 
 ```typescript
 import {
@@ -52,6 +60,15 @@ void bootstrapApplication(App, {
 ```
 
 ## Scope, Signals and cleanup
+
+| Step                                   | What it does for your application                                 |
+| -------------------------------------- | ----------------------------------------------------------------- |
+| `createSearchivo(localSource(engine))` | Creates a typed binding for this search domain.                   |
+| `providers: binding.provide()`         | Gives each component instance its own search state.               |
+| `imports: [SearchivoInputDirective]`   | Enables `searchivo` on a normal input.                            |
+| `binding.inject()`                     | Exposes reactive results, loading, errors and a query controller. |
+
+Type `desk` into the example: the state contains one result, and Angular renders **Desk lamp**. Clear the input: the result list becomes empty. Decide in your component whether an empty query should show your full catalog instead.
 
 Create the binding once, then call `provide()` in component providers. Each component instance receives an independent controller; a shared source engine still shares indexed data. Call `binding.inject()` in an Angular injection context, such as a field initializer. Missing providers cause an injection error. Signals are readonly to consumers; use `setQuery` or the controller to change state. Signal updates make the example work with OnPush and without Zone.js. `DestroyRef` unsubscribes and disposes the scoped controller.
 

@@ -4,19 +4,17 @@ import ts from "typescript";
 import { resolve } from "node:path";
 
 export const documentation = [
-  ["Tutorials", "tutorial", "Your first typed search"],
+  ["Start here", "tutorial", "Install and build your first search"],
   ["Concepts", "guide", "Engine and integration concepts"],
   ["Recipes", "angular", "Standalone Angular"],
   ["Recipes", "recipes", "Async search and HTTP"],
   ["Reference", "reference-core", "Engine, ranking and highlights"],
   ["Reference", "reference-interaction", "Refinements, suggestions and state"],
   ["Reference", "reference-angular", "Angular API"],
-  ["Reference", "reference-integrations", "Workers, HTTP and diagnostics"],
+  ["Advanced", "reference-integrations", "Workers, HTTP and diagnostics"],
   ["Reference", "public-api", "Public export inventory"],
-  ["Operations", "performance", "Performance and complexity"],
-  ["Operations", "security", "Security and resource limits"],
-  ["Operations", "deployment", "Deployment and troubleshooting"],
-  ["Operations", "publishing", "Publish the npm packages"],
+  ["Production", "performance", "Performance and complexity"],
+  ["Production", "security", "Security and resource limits"],
 ].map(([group, id, title]) => ({
   group,
   id,
@@ -28,6 +26,7 @@ export const documentation = [
 export function renderDocumentation(markdown) {
   return marked
     .parse(markdown)
+    .replace(/^<h1>.*?<\/h1>\s*/, "")
     .replace(
       /<h([1-6])>(.*?)<\/h\1>/g,
       (_all, level, title) =>

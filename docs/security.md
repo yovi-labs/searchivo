@@ -4,7 +4,7 @@ Treat documents, network results and user queries as untrusted at application bo
 
 ## Render data as text
 
-Highlight ranges are offsets, never HTML. Angular interpolation, DOM text nodes and `textContent` preserve untrusted text safely. Avoid `innerHTML`, dynamic template compilation and HTML trust-bypass functions. The docs build renders versioned repository Markdown; that is trusted developer content, not a public Markdown upload endpoint. Changing that trust model requires HTML sanitization and a restrictive content policy.
+Highlight ranges are offsets, never HTML. Angular interpolation, DOM text nodes and `textContent` preserve untrusted text safely. Avoid `innerHTML`, dynamic template compilation and HTML trust-bypass functions. If your application renders Markdown from users, use a separate sanitizer and content policy before displaying it.
 
 ## Validate transport and bound resources
 
@@ -18,8 +18,8 @@ Abort invalidates replies and asynchronous state; it does not stop synchronous e
 
 ## Data and deployment
 
-Local core search sends no network telemetry. HTTP sends the full query/request to your selected endpoint; recorder summaries contain query text and can be sensitive even without documents. Do not collect or publish those summaries without application policy. Keep credentials outside source, browser output and Notion records. The live fixture requires no secret or external data source.
+Local core search sends no network telemetry. HTTP sends the full query/request to your selected endpoint; recorder summaries contain query text and can be sensitive even without documents. Do not collect or publish those summaries without application policy. Keep credentials outside source and browser output. Index only documents the signed-in user is authorized to receive: client-side filtering does not hide data from that user.
 
-Static CDN responses use nosniff, a referrer policy and frame denial. Functions set their own JSON/no-store/nosniff headers; CDN header rules do not apply to them. No catch-all SPA rewrite turns missing JavaScript into HTML. A restrictive CSP needs deliberate Angular style policy and deployment testing; no claim of complete CSP protection is made here.
+Configure your application's hosting headers and Content Security Policy for its own runtime and style requirements. If you use module Workers, verify that their deployed URLs return JavaScript with the correct MIME type. A missing asset must not silently return your application's HTML fallback.
 
-Run the dependency audit against the lockfile, inspect the final diff, and retain exact revision/test evidence. Audit results describe known advisories at that time, not a guarantee against every vulnerability. See [deployment](deployment.md) for repeatable verification.
+Audit dependencies using your application's lockfile and test search against realistic document sizes, queries and permissions before shipping. Audit results describe known advisories at that time, not a guarantee against every vulnerability.
