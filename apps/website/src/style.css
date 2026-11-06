@@ -113,6 +113,76 @@ nav a[aria-current="page"] {
   padding: 92px 0 64px;
   position: relative;
 }
+.proof-strip {
+  display: grid;
+  grid-template-columns: repeat(3, 1fr) auto;
+  align-items: center;
+  gap: 28px;
+  border-bottom: 1px solid #34435b;
+}
+.proof-strip strong,
+.proof-strip span {
+  display: block;
+}
+.proof-strip strong {
+  font-size: 22px;
+  color: #f1f4fb;
+}
+.proof-strip span,
+.proof-strip a {
+  font-size: 12px;
+  color: #b9c6dc;
+  margin-top: 8px;
+}
+.integration-steps > div {
+  border-bottom: 1px solid #34435b;
+  padding: 22px 0;
+}
+.integration-steps span {
+  color: #ff98ce;
+  font:
+    12px ui-monospace,
+    monospace;
+  margin-right: 16px;
+}
+.integration-steps p {
+  font-size: 14px;
+  margin: 8px 0 0 34px;
+}
+.demo-callout {
+  padding: 48px;
+  border: 1px solid #64465d;
+  border-radius: 12px;
+  background: #1b172b;
+}
+.demo-callout h2,
+.final-cta h2 {
+  font-size: clamp(28px, 3.5vw, 44px);
+  margin-top: 16px;
+}
+.landing-faq {
+  max-width: 860px;
+}
+.landing-faq p {
+  color: #b9c6dc;
+}
+.feature a {
+  color: #ffb5dd;
+  font-size: 13px;
+}
+@media (max-width: 850px) {
+  .proof-strip {
+    grid-template-columns: 1fr 1fr;
+  }
+  .demo-callout {
+    padding: 28px 22px;
+  }
+}
+@media (max-width: 440px) {
+  .proof-strip {
+    grid-template-columns: 1fr;
+  }
+}
 .hero::before {
   content: "";
   position: absolute;

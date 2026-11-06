@@ -5,7 +5,7 @@ import { readFileSync, readdirSync } from "node:fs";
 test("official and application deployments have independent roots and revisions", () => {
   const official = readFileSync("dist/deploy/official/index.html", "utf8");
   const example = readFileSync("dist/deploy/example/index.html", "utf8");
-  assert.ok(official.includes("SEARCH<br>"));
+  assert.ok(official.includes("Great search.<br>"));
   assert.ok(official.includes("https://searchivo-market.netlify.app/"));
   assert.ok(!official.includes("<app-root>"));
   assert.ok(example.includes("<app-root>"));
