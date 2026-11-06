@@ -2,6 +2,9 @@
   "name": "@searchivo/angular",
   "version": "0.1.0",
   "type": "module",
+  "scripts": {
+    "prepublishOnly": "node -e \"throw new Error('Publish the validated Angular APF tarball, not this source directory. See docs/publishing.md.')\""
+  },
   "sideEffects": false,
   "typings": "./dist/types/searchivo-angular.d.ts",
   "module": "./dist/fesm2022/searchivo-angular.mjs",

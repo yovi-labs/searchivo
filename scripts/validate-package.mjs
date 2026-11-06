@@ -21,13 +21,20 @@ const run = (command, args, cwd) =>
     shell: false,
   });
 const pnpmEntry = process.env.npm_execpath;
-if (!pnpmEntry || !/pnpm\.(mjs|cjs)$/.test(pnpmEntry))
-  throw new Error("Run this script using pnpm validate:package");
+if (!pnpmEntry) throw new Error("Run this script using pnpm validate:package");
+// pnpm can expose a JS entry point or a standalone executable, depending on installation.
+const pnpmIsScript = /\.(mjs|cjs|js)$/.test(pnpmEntry);
 const packPackage = (directory) => {
   const data = JSON.parse(
     run(
-      process.execPath,
-      [pnpmEntry, "pack", "--json", "--pack-destination", temp],
+      pnpmIsScript ? process.execPath : pnpmEntry,
+      [
+        ...(pnpmIsScript ? [pnpmEntry] : []),
+        "pack",
+        "--json",
+        "--pack-destination",
+        temp,
+      ],
       resolve(directory),
     ).toString(),
   );
@@ -151,6 +158,7 @@ const angularManifest = JSON.parse(
 );
 if (
   angularManifest.private === true ||
+  angularManifest.scripts?.prepublishOnly ||
   !angularManifest.exports["."].types ||
   !angularManifest.exports["."].default
 )

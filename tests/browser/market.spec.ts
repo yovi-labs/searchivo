@@ -60,6 +60,7 @@ test("product details support keyboard focus, saving and accessible mobile layou
   await page.keyboard.press("Escape");
   await expect(dialog).not.toBeVisible();
   await expect(open).toBeFocused();
+  expect((await new AxeBuilder({ page }).analyze()).violations).toEqual([]);
 });
 
 test("saved products tolerate corrupt and unavailable browser storage", async ({

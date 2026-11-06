@@ -14,7 +14,7 @@ pnpm release:prepare
 
 `release:check` runs formatting, lint, strict builds, library tests/coverage, package boundaries, installed-tarball consumers, all complete documentation examples, browser/axe checks, endpoint tests and the dependency audit. Package validation packs using pnpm so `workspace:*` references become registry versions, rejects local dependency protocols in every packed manifest, validates exports and file allowlists, and runs **npm publish --dry-run** for all six archives. No registry write occurs.
 
-`release:prepare` requires a clean tree and a packed-validation receipt from that same commit. It copies the validated archives into `artifacts/release-0.1.0-<commit>/`, checks SHA-256 hashes, and creates a source ZIP plus manifest. Old private candidate artifacts keep their original contents and names. Publish the new validated tarballs, not old candidates or arbitrary source directories. In particular, Angular publishes its built APF package, not `packages/angular` source.
+`release:prepare` requires a clean tree and a packed-validation receipt from that same commit. It copies the validated archives into `artifacts/release-0.1.0-<commit>/`, checks SHA-256 hashes, and creates a source ZIP plus manifest. Old private candidate artifacts keep their original contents and names. Publish the new validated tarballs, not old candidates or arbitrary source directories. Angular's source directory has a prepublish guard: publish its built APF tarball instead. ng-packagr removes that source-only lifecycle script from the built package.
 
 ## Confirm npm account and scope
 
